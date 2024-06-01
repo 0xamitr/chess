@@ -16,8 +16,7 @@ export default function ChessBoard({color1, color2}){
                     }
                     </div>
                 )
-            }
-                
+            }        
         </div>
     )
 }

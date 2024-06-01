@@ -1,0 +1,19 @@
+.chessboard{
+    border: solid 1px black;
+    overflow: hidden;
+    min-width: 320px;
+    aspect-ratio: 1;
+
+}
+
+.box{
+    max-width: 88px;
+    min-width: 40px;
+    width: 9vw;
+    aspect-ratio: 1;
+    border: solid 1px black;
+}
+
+.row{
+    display: flex;
+}
