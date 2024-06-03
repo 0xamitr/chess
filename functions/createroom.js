@@ -1,3 +1,4 @@
+import Game from '.game/game.js'
 import { io } from "socket.io-client";
 
 export default function createRoom(e){
@@ -8,6 +9,7 @@ export default function createRoom(e){
     socket.emit('code', code)
     socket.on('connection_established', ()=>{
         alert("connection")
+        const game = Game(socket)
     })
     return code
   }

@@ -18,7 +18,6 @@ export default function Home() {
   };
   return (
     <div className={styles.home}>
-      {/* <h2>HOME</h2> */}
       <ChessBoard color1={'grey'} color2={'white'}/>
       <form onSubmit={joinRoom}>
         <label>
