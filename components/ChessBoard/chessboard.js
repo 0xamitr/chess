@@ -10,7 +10,7 @@ export default function ChessBoard({ color1, color2, boardState, onMove }) {
             let from = String.fromCharCode(97 + selectedPosition.j) + (8 - selectedPosition.i);
             let to = String.fromCharCode(97 + j) + (8 - i);
 
-            onMove(from, to);  // Delegate the move logic to the parent component (or game class)
+            onMove(from, to);
             setSelectedPiece(null);
             setSelectedPosition(null);
         } else {
@@ -25,9 +25,9 @@ export default function ChessBoard({ color1, color2, boardState, onMove }) {
                 <div className={styles.row} key={i}>
                     {row.map((piece, j) => (
                         <div
-                            className={styles.box}
-                            key={j}
-                            style={(i + j) % 2 === 0 ? { backgroundColor: color1 } : { backgroundColor: color2 }}
+                        style={(i + j) % 2 === 0 ? { backgroundColor: color1 } : { backgroundColor: color2 }}
+                        className={`${styles.box} ${selectedPosition && selectedPosition.i === i && selectedPosition.j === j ? styles.selected : ''}`}
+                        key={j}
                             onClick={() => handleSquareClick(i, j)}
                         >
                             <p>{piece}</p>
