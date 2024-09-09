@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from "./chessboard.module.css";
 
-export default function ChessBoard({ color1, color2, boardState, onMove }) {
+export default function ChessBoard({ color1, color2, boardState, onMove, isMoveValid }) {
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);
 
@@ -9,8 +9,9 @@ export default function ChessBoard({ color1, color2, boardState, onMove }) {
         if (selectedPiece) {
             let from = String.fromCharCode(97 + selectedPosition.j) + (8 - selectedPosition.i);
             let to = String.fromCharCode(97 + j) + (8 - i);
-
-            onMove(from, to);
+            console.log(isMoveValid)
+            if(isMoveValid(from, to))
+                onMove(from, to);
             setSelectedPiece(null);
             setSelectedPosition(null);
         } else {

@@ -10,6 +10,7 @@ export default function Home() {
   const [code, setCode] = useState<Number>();
   const [socket, setSocket] = useState<any | null>(null);
   const [game, setGame] = useState<any | null>(null);
+  const [isMoveValid, setIsMoveValid] = useState<any | null>(null);
   const [boardState, setBoardState] = useState([
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -47,6 +48,7 @@ export default function Home() {
     if (socket) {
       const gameInstance = getGame();
       setGame(gameInstance);
+      setIsMoveValid(gameInstance.isMoveValid);
 
       socket.on('move', () => {
         setBoardState([...gameInstance.board]); // Sync board state on socket moves
@@ -56,7 +58,7 @@ export default function Home() {
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} onMove={onMove} />
+      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} onMove={onMove}  isMoveValid={isMoveValid}/>
       <form onSubmit={handleJoinRoom}>
         <label>
           <p>Number</p>
