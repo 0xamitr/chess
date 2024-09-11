@@ -10,7 +10,7 @@ export default function Home() {
   const [code, setCode] = useState<Number>();
   const [socket, setSocket] = useState<any | null>(null);
   const [game, setGame] = useState<any | null>(null);
-  const [isMoveValid, setIsMoveValid] = useState<any | null>(null);
+  const [isWhite, setIsWhite] = useState<boolean | null>(null);
   const [boardState, setBoardState] = useState([
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -39,7 +39,7 @@ export default function Home() {
     if (game) {
       const moveMade = game.makeMove(from, to);
       if (moveMade) {
-        setBoardState([...game.board]); // Only update if a valid move is made
+        setBoardState([...game.board]);
       }
     }
   };
@@ -47,18 +47,19 @@ export default function Home() {
   useEffect(() => {
     if (socket) {
       const gameInstance = getGame();
+      console.log("white", gameInstance.isWhite);
+      setIsWhite(gameInstance.isWhite)
       setGame(gameInstance);
-      setIsMoveValid(gameInstance.isMoveValid);
 
       socket.on('move', () => {
-        setBoardState([...gameInstance.board]); // Sync board state on socket moves
+        setBoardState([...gameInstance.board]);
       });
     }
   }, [socket]);
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} onMove={onMove}  isMoveValid={isMoveValid}/>
+      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} onMove={onMove} isWhite={isWhite} game={game}/>
       <form onSubmit={handleJoinRoom}>
         <label>
           <p>Number</p>

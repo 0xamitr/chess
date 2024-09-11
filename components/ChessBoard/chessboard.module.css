@@ -21,3 +21,26 @@
 .selected{
     filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
 }
+
+.rotated{
+    transform: rotate(180deg);
+}
+
+.antirotated{
+    transform: rotate(-180deg);
+}
+
+.validMove {
+    filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
+
+}
+
+.chesspiece{
+    font-size: 5rem;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
