@@ -46,7 +46,11 @@ class Game {
             return false;
         }
         
-        console.log("hey", fromRow, fromCol, toRow, toCol, piece)
+        if(this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toUpperCase())
+            return false
+
+        if(!this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toLowerCase())
+            return false
 
         this.board[toRow][toCol] = piece;
         this.board[fromRow][fromCol] = '.';
@@ -151,7 +155,6 @@ class Game {
     }
 
     isValidBishopMove(fromRow, fromCol, toRow, toCol) {
-        console.log("works")
         if (Math.abs(fromRow - toRow) !== Math.abs(fromCol - toCol)) {
             return false;
         }
@@ -164,7 +167,6 @@ class Game {
             const currentRow = fromRow + i * rowDirection;
             const currentCol = fromCol + i * colDirection;
             if (this.board[currentRow][currentCol] !== '.') {
-                console.log("heyaaa");
                 return false;
             }
         }
@@ -233,16 +235,17 @@ class Game {
     acceptMove() {
         console.log('acceptMove called');
         this.socket.on('move', (move) => {
-            // console.log(`Move Played: ${move.from} -> ${move.to}`);
             this.moves.push(move);
             this.applyMove(move)
             this.turn = !this.turn
-            this.isCheck(this.board)
+            if(this.isCheck()){
+                this.checkCheckmate()
+            }
         })
+
     }
 
     isCheck() {
-        console.table(this.board);
         let kingRow, kingCol
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
@@ -269,9 +272,41 @@ class Game {
                 }
             }
         }
-        console.log("yeah")
         return false
     }
+    
+    checkCheckmate() {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                // Check for white pieces
+                if (this.isWhite) {
+                    if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toUpperCase()) {
+                        continue; // Skip to the next iteration if it's not a white piece
+                    }
+                    let from = String.fromCharCode(97 + j) + (8 - i);
+                    const validMoves = this.getValidMoves(from);
+                    if (validMoves.length > 0) {
+                        return false; // If a valid move exists, it's not checkmate
+                    }
+                } 
+                // Check for black pieces
+                else {
+                    if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toLowerCase()) {
+                        continue; // Skip to the next iteration if it's not a black piece
+                    }
+                    let from = String.fromCharCode(97 + j) + (8 - i);
+                    const validMoves = this.getValidMoves(from);
+                    console.log(validMoves);
+                    if (validMoves.length > 0) {
+                        return false; // If a valid move exists, it's not checkmate
+                    }
+                }
+            }
+        }
+        alert("Checkmate");
+        return true; // Return true if no valid moves found, meaning it's checkmate
+    }
+    
 
     startTimer() {
 
