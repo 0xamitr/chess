@@ -142,7 +142,7 @@ class Game {
             if (target === '.') {
                 if (fromRow + direction === toRow) {
                     return true;
-                } else if ((fromRow === 6 && toRow === 4 && isWhite) || (fromRow === 1 && toRow === 3 && !isWhite)) {
+                } else if ((fromRow === 6 && toRow === 4 && isWhite && this.board[fromRow-1][fromCol] == '.') || (fromRow === 1 && toRow === 3 && !isWhite && this.board[fromRow+1][fromCol] == '.')) {
                     return true;
                 }
             }
