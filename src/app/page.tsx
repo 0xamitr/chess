@@ -10,7 +10,7 @@ export default function Home() {
   const [code, setCode] = useState<Number>();
   const [socket, setSocket] = useState<any | null>(null);
   const [game, setGame] = useState<any | null>(null);
-  const [isWhite, setIsWhite] = useState<boolean | null>(null);
+  const [isWhite, setIsWhite] = useState<boolean | null>(true);
   const [boardState, setBoardState] = useState([
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -39,23 +39,42 @@ export default function Home() {
     if (game) {
       const moveMade = game.makeMove(from, to);
       if (moveMade) {
-        setBoardState([...game.board]);
+        if (isWhite) {
+          setBoardState([...game.board.map((row: string[]) => [...row])]); // Ensure deep copy of the board
+          return true
+        } else {
+          setBoardState(
+            [...game.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black side
+          );
+          return true
+        }
+      } else {
+        return false;
       }
     }
+    else
+      return false
   };
+  
 
   useEffect(() => {
     if (socket) {
       const gameInstance = getGame();
-      console.log("white", gameInstance.isWhite);
-      setIsWhite(gameInstance.isWhite)
+      setIsWhite(gameInstance.isWhite);
       setGame(gameInstance);
-
+  
       socket.on('move', () => {
-        setBoardState([...gameInstance.board]);
+        if (isWhite) {
+          setBoardState([...gameInstance.board.map((row: string[]) => [...row])]); // Deep copy
+        } else {
+          setBoardState(
+            [...gameInstance.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black
+          );
+        }
       });
     }
-  }, [socket]);
+  }, [socket, isWhite]); // Added isWhite as a dependency
+  
 
   return (
     <div className={styles.home}>

@@ -2,15 +2,28 @@ class Game {
     constructor(socket, code, isWhite) {
         this.socket = socket;
         this.moves = [];
-        this.startTimer();
+        this.time = 600;
+        this.timer = null;  // Declare this.timer for future use
+        this.startTimer();  // This should run the timer
         this.onMove = null;
         this.code = code;
         this.acceptMove();
-        this.turn = isWhite
-        this.isWhite = isWhite
-        this.board = this.initializeBoard()
-        this.check = false
+        this.turn = isWhite;
+        this.isWhite = isWhite;
+        this.board = this.initializeBoard();
+        this.check = false;
+    }
 
+    startTimer() {
+        console.log("Timer started!");  // This should log now
+        this.timer = setInterval(() => {  // Use this.timer
+            if(this.turn)
+                this.time = this.time - 1;
+            if (this.time < 1) {
+                clearInterval(this.timer);  // Clear this.timer
+            }
+            console.log("Time left:", this.time);  // Log remaining time
+        }, 1000);
     }
 
     initializeBoard() {
@@ -45,11 +58,11 @@ class Game {
         if (targetPiece != '.' && this.isSamePlayer(piece, targetPiece)) {
             return false;
         }
-        
-        if(this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toUpperCase())
+
+        if (this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toUpperCase())
             return false
 
-        if(!this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toLowerCase())
+        if (!this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toLowerCase())
             return false
 
         this.board[toRow][toCol] = piece;
@@ -91,15 +104,19 @@ class Game {
 
         const piece = this.board[fromRow][fromCol];
         const targetPiece = this.board[toRow][toCol];
-        if (piece === '.') 
+        if (piece === '.')
             return false;
         if (targetPiece != '.' && this.isSamePlayer(piece, targetPiece)) {
             return false;
         }
-
+        let isWhite
+        if (piece == 'p')
+            isWhite = false
+        else if (piece == 'P')
+            isWhite = true
         switch (piece.toLowerCase()) {
             case 'p':
-                return this.isValidPawnMove(fromRow, fromCol, toRow, toCol, this.isWhite, targetPiece);
+                return this.isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, targetPiece);
             case 'r':
                 return this.isValidRookMove(fromRow, fromCol, toRow, toCol);
             case 'n':
@@ -137,12 +154,13 @@ class Game {
     }
 
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
+        console.log("cha")
         const direction = isWhite ? -1 : 1;
         if (fromCol === toCol) {
             if (target === '.') {
                 if (fromRow + direction === toRow) {
                     return true;
-                } else if ((fromRow === 6 && toRow === 4 && isWhite && this.board[fromRow-1][fromCol] == '.') || (fromRow === 1 && toRow === 3 && !isWhite && this.board[fromRow+1][fromCol] == '.')) {
+                } else if ((fromRow === 6 && toRow === 4 && isWhite && this.board[fromRow - 1][fromCol] == '.') || (fromRow === 1 && toRow === 3 && !isWhite && this.board[fromRow + 1][fromCol] == '.')) {
                     return true;
                 }
             }
@@ -158,11 +176,11 @@ class Game {
         if (Math.abs(fromRow - toRow) !== Math.abs(fromCol - toCol)) {
             return false;
         }
-        
+
         const rowDirection = Math.sign(toRow - fromRow);
         const colDirection = Math.sign(toCol - fromCol);
         const steps = Math.abs(fromRow - toRow);
-        
+
         for (let i = 1; i < steps; i++) {
             const currentRow = fromRow + i * rowDirection;
             const currentCol = fromCol + i * colDirection;
@@ -170,7 +188,7 @@ class Game {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -216,19 +234,24 @@ class Game {
         const fromCol = from.charCodeAt(0) - 'a'.charCodeAt(0);
         if (this.isWhite) {
             if (this.getPieceAt(fromRow, fromCol) != this.getPieceAt(fromRow, fromCol).toUpperCase())
-                return
+                return false
         }
         else {
             if (this.getPieceAt(fromRow, fromCol) == this.getPieceAt(fromRow, fromCol).toUpperCase())
-                return
+                return false
         }
         if (!this.isMoveValidCp(from, to))
-            return
+            return false
         if (this.turn) {
             const move = { from, to }
             const code = this.code
             this.socket.emit('move', move, code)
             this.check = false
+            return true
+        }
+        else {
+            console.log("heydo")
+            return false
         }
     }
 
@@ -238,7 +261,8 @@ class Game {
             this.moves.push(move);
             this.applyMove(move)
             this.turn = !this.turn
-            if(this.isCheck()){
+            console.log("yoyoyuhfodhfs")
+            if (this.isCheck()) {
                 this.checkCheckmate()
             }
         })
@@ -263,10 +287,12 @@ class Game {
                 }
             }
         }
-
+        console.log(kingRow, kingCol)
+        console.log(String.fromCharCode(97 + kingCol) + (8 - kingRow))
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), String.fromCharCode(97 + kingCol) + (8 - kingRow))) {
+                    console.log("yo")
                     this.check = true
                     return true
                 }
@@ -274,7 +300,7 @@ class Game {
         }
         return false
     }
-    
+
     checkCheckmate() {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
@@ -288,7 +314,7 @@ class Game {
                     if (validMoves.length > 0) {
                         return false; // If a valid move exists, it's not checkmate
                     }
-                } 
+                }
                 // Check for black pieces
                 else {
                     if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toLowerCase()) {
@@ -306,12 +332,6 @@ class Game {
         alert("Checkmate");
         return true; // Return true if no valid moves found, meaning it's checkmate
     }
-    
-
-    startTimer() {
-
-    }
-
     getmoves() {
         return this.moves;
     }

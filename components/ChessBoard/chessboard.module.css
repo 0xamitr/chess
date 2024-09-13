@@ -1,12 +1,12 @@
-.chessboard{
+.chessboard {
     border: solid 1px black;
     overflow: hidden;
     min-width: 320px;
     aspect-ratio: 1;
-
+    position: relative;
 }
 
-.box{
+.box {
     max-width: 88px;
     min-width: 40px;
     width: 9vw;
@@ -14,33 +14,30 @@
     border: solid 1px black;
 }
 
-.row{
+.row {
     display: flex;
 }
 
-.selected{
+.selected {
     filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
-}
-
-.rotated{
-    transform: rotate(180deg);
-}
-
-.antirotated{
-    transform: rotate(-180deg);
 }
 
 .validMove {
     filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
-
 }
 
-.chesspiece{
+.chesspiece {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     font-size: 5rem;
-    height: 100%;
+    height: 5rem;
+    width: auto;
     padding: 0;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
