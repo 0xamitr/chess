@@ -12,7 +12,6 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
         if (game) {
             const interval = setInterval(() => {
                 setTime(game.time);
-                console.log(game.time);
                 if (game.time < 1) {
                     clearInterval(interval);
                 }

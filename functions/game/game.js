@@ -3,8 +3,8 @@ class Game {
         this.socket = socket;
         this.moves = [];
         this.time = 600;
-        this.timer = null;  // Declare this.timer for future use
-        this.startTimer();  // This should run the timer
+        this.timer = null;
+        this.startTimer();
         this.onMove = null;
         this.code = code;
         this.acceptMove();
@@ -14,15 +14,25 @@ class Game {
         this.check = false;
     }
 
+    getCoords(move){
+        const from = move.from;
+        const to = move.to;
+        const fromRow = 8 - parseInt(from[1]);
+        const fromCol = from.charCodeAt(0) - 'a'.charCodeAt(0);
+        const toRow = 8 - parseInt(to[1]);
+        const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
+
+        return {from: [fromRow, fromCol], to: [toRow, toCol]}
+    }
+
     startTimer() {
-        console.log("Timer started!");  // This should log now
-        this.timer = setInterval(() => {  // Use this.timer
+        console.log("Timer started!");  
+        this.timer = setInterval(() => {  
             if(this.turn)
                 this.time = this.time - 1;
             if (this.time < 1) {
-                clearInterval(this.timer);  // Clear this.timer
+                clearInterval(this.timer);  
             }
-            console.log("Time left:", this.time);  // Log remaining time
         }, 1000);
     }
 
@@ -255,10 +265,54 @@ class Game {
         }
     }
 
+    getDisambiguation(similarPieces, from) {
+        const fromFile = String.fromCharCode(97 + from[1]); // Convert file index to letter (e.g., 0 -> 'a')
+        const fromRank = 8 - from[0]; // Convert rank index to chess rank (e.g., 0 -> 8)
+    
+        let fileDisambiguation = false;
+        let rankDisambiguation = false;
+    
+        // Check if there are any pieces with the same file
+        if (similarPieces.some(piece => piece.from[1] !== from[1])) {
+            fileDisambiguation = true;
+        }
+    
+        // Check if there are any pieces with the same rank
+        if (similarPieces.some(piece => piece.from[0] !== from[0])) {
+            rankDisambiguation = true;
+        }
+    
+        // Add file, rank, or both to disambiguate
+        let disambiguation = "";
+        if (fileDisambiguation) {
+            disambiguation += fromFile;
+        }
+        if (rankDisambiguation) {
+            disambiguation += fromRank;
+        }
+    
+        return disambiguation;
+    }
+    
+    pushMove(move) {
+        const coords = this.getCoords(move)
+        console.log(coords.from)
+        const pieceMoved = this.board[coords.from[0]][coords.from[1]].toUpperCase()
+        const destinationPiece = this.board[coords.to[0][coords.to[1]]]
+        let moveMade = ""
+        if(pieceMoved != 'P')
+            moveMade += pieceMoved
+        if(destinationPiece != '.')
+            moveMade += 'x'
+        moveMade += move.to
+        this.moves.push(moveMade)
+    }
+
     acceptMove() {
         console.log('acceptMove called');
         this.socket.on('move', (move) => {
-            this.moves.push(move);
+            this.pushMove(move)
+            console.log(this.moves)
             this.applyMove(move)
             this.turn = !this.turn
             console.log("yoyoyuhfodhfs")
@@ -268,7 +322,6 @@ class Game {
         })
 
     }
-
     isCheck() {
         let kingRow, kingCol
         for (let i = 0; i < 8; i++) {
@@ -287,8 +340,6 @@ class Game {
                 }
             }
         }
-        console.log(kingRow, kingCol)
-        console.log(String.fromCharCode(97 + kingCol) + (8 - kingRow))
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), String.fromCharCode(97 + kingCol) + (8 - kingRow))) {
@@ -322,7 +373,6 @@ class Game {
                     }
                     let from = String.fromCharCode(97 + j) + (8 - i);
                     const validMoves = this.getValidMoves(from);
-                    console.log(validMoves);
                     if (validMoves.length > 0) {
                         return false; // If a valid move exists, it's not checkmate
                     }
