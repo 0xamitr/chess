@@ -116,14 +116,14 @@ class Game {
         const targetPiece = this.board[toRow][toCol];
         if (piece === '.')
             return false;
-        if (targetPiece != '.' && this.isSamePlayer(piece, targetPiece)) {
+        if (targetPiece != '.' && this.isSamePlayer(piece, targetPiece))
             return false;
-        }
         let isWhite
         if (piece == 'p')
             isWhite = false
         else if (piece == 'P')
             isWhite = true
+
         switch (piece.toLowerCase()) {
             case 'p':
                 return this.isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, targetPiece);
@@ -164,7 +164,6 @@ class Game {
     }
 
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
-        console.log("cha")
         const direction = isWhite ? -1 : 1;
         if (fromCol === toCol) {
             if (target === '.') {
@@ -250,7 +249,7 @@ class Game {
             if (this.getPieceAt(fromRow, fromCol) == this.getPieceAt(fromRow, fromCol).toUpperCase())
                 return false
         }
-        if (!this.isMoveValidCp(from, to))
+        if (!this.isMoveValid(from, to))
             return false
         if (this.turn) {
             const move = { from, to }
@@ -259,49 +258,56 @@ class Game {
             this.check = false
             return true
         }
-        else {
-            console.log("heydo")
+        else
             return false
-        }
     }
 
-    getDisambiguation(similarPieces, from) {
-        const fromFile = String.fromCharCode(97 + from[1]); // Convert file index to letter (e.g., 0 -> 'a')
-        const fromRank = 8 - from[0]; // Convert rank index to chess rank (e.g., 0 -> 8)
-    
-        let fileDisambiguation = false;
-        let rankDisambiguation = false;
-    
-        // Check if there are any pieces with the same file
-        if (similarPieces.some(piece => piece.from[1] !== from[1])) {
-            fileDisambiguation = true;
+    getDisambiguation(coords) {
+        const piecetoMove = this.board[coords.from[0]][coords.from[1]]
+        const to = String.fromCharCode(97 + coords.to[1]) + (8 - coords.to[0]);
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                if(this.board[i][j] == piecetoMove){
+                    if(i == coords.from[0] && j == coords.from[1])
+                        continue
+                    if(this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), to)){
+                        let k = 0
+                        for(let file = 0; file < 8; file++){
+                            if(this.board[coords.from[0]][file] == piecetoMove)
+                                k++
+                        }
+                        if(k > 1)
+                            return String.fromCharCode(97 + coords.from[1])
+
+                        k = 0
+                        for(let rank = 0; rank < 8; rank++){
+                            if(this.board[rank][coords.from[1]] == piecetoMove)
+                                k++
+                        }
+                        if(k > 1)
+                            return 8 - coords.from[0]
+                        let out = String.fromCharCode(97 + coords.from[1])
+                        out += 8 - coords.from[0]
+                        return out
+
+                    }
+                }
+            }
         }
-    
-        // Check if there are any pieces with the same rank
-        if (similarPieces.some(piece => piece.from[0] !== from[0])) {
-            rankDisambiguation = true;
-        }
-    
-        // Add file, rank, or both to disambiguate
-        let disambiguation = "";
-        if (fileDisambiguation) {
-            disambiguation += fromFile;
-        }
-        if (rankDisambiguation) {
-            disambiguation += fromRank;
-        }
-    
-        return disambiguation;
+        return ""   
     }
     
     pushMove(move) {
         const coords = this.getCoords(move)
         console.log(coords.from)
         const pieceMoved = this.board[coords.from[0]][coords.from[1]].toUpperCase()
-        const destinationPiece = this.board[coords.to[0][coords.to[1]]]
+        const destinationPiece = this.board[coords.to[0]][coords.to[1]]
         let moveMade = ""
         if(pieceMoved != 'P')
             moveMade += pieceMoved
+        const desambiguation = this.getDisambiguation(coords)
+        if(desambiguation)
+            moveMade += desambiguation
         if(destinationPiece != '.')
             moveMade += 'x'
         moveMade += move.to
