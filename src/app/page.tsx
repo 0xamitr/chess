@@ -78,7 +78,7 @@ export default function Home() {
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} onMove={onMove} isWhite={isWhite} game={game}/>
+      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game}/>
       <form onSubmit={handleJoinRoom}>
         <label>
           <p>Number</p>

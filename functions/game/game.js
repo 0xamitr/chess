@@ -12,6 +12,9 @@ class Game {
         this.isWhite = isWhite;
         this.board = this.initializeBoard();
         this.check = false;
+        this.history = [JSON.parse(JSON.stringify(this.board))];
+        this.totalmoves = 0;
+        this.tempmove = 0;
     }
 
     getCoords(move){
@@ -26,7 +29,6 @@ class Game {
     }
 
     startTimer() {
-        console.log("Timer started!");  
         this.timer = setInterval(() => {  
             if(this.turn)
                 this.time = this.time - 1;
@@ -251,6 +253,7 @@ class Game {
         }
         if (!this.isMoveValid(from, to))
             return false
+
         if (this.turn) {
             const move = { from, to }
             const code = this.code
@@ -320,14 +323,18 @@ class Game {
             this.pushMove(move)
             console.log(this.moves)
             this.applyMove(move)
+            this.history.push(JSON.parse(JSON.stringify(this.board)))
+            console.log(this.history)
             this.turn = !this.turn
             console.log("yoyoyuhfodhfs")
+            this.totalmoves++
+            this.tempmove = this.totalmoves
             if (this.isCheck()) {
                 this.checkCheckmate()
             }
         })
-
     }
+
     isCheck() {
         let kingRow, kingCol
         for (let i = 0; i < 8; i++) {
@@ -385,7 +392,7 @@ class Game {
                 }
             }
         }
-        alert("Checkmate");
+        alert("Checkmate! YOU LOSE");
         return true; // Return true if no valid moves found, meaning it's checkmate
     }
     getmoves() {

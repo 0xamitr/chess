@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
 
-export default function ChessBoard({ color1, color2, boardState, onMove, isWhite, game }) {
+export default function ChessBoard({ color1, color2, boardState, setboardState, onMove, isWhite, game }) {
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [validMoves, setValidMoves] = useState([]);
     const [time, setTime] = useState(null)
+    const [tempindex, setTempindex] = useState(0)
 
     useEffect(() => {
         if (game) {
@@ -17,7 +18,6 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
                 }
             }, 1000);
         }
-        
     }, [game])
 
     const ImproveTime = (time) => {
@@ -48,7 +48,6 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
             let to = String.fromCharCode(97 + adjustedJ) + (8 - adjustedI);
             console.log(from, to)
             if (!onMove(from, to)) {
-                console.log("hi")
                 setSelectedPiece(boardState[i][j])
                 setSelectedPosition({ i: i, j: j });
                 const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
@@ -62,7 +61,6 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
                 );
             } // Execute the move
             else {
-                console.log("bye")
                 setSelectedPiece(null);
                 setSelectedPosition(null);
                 setValidMoves([]);
@@ -88,6 +86,26 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
             );
         }
     };
+
+    const handleGoback = () => {
+        if(game.tempmove > 0)
+            game.tempmove--
+        if(game.isWhite)
+            setboardState(game.history[game.tempmove])
+        else
+            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+
+
+    }
+    const handleGofront = () => {
+        if(game.tempmove < game.totalmoves)
+                game.tempmove++
+        if(game.isWhite)
+            setboardState(game.history[game.tempmove])
+        else
+            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+            
+    }
 
 
     // const handleOnMouseDown = (e, i, j) => {
@@ -182,6 +200,12 @@ export default function ChessBoard({ color1, color2, boardState, onMove, isWhite
             <div>
                 {ImproveTime(time)}
             </div>
+            <button onClick={handleGoback}>
+                GO BACK
+            </button>
+            <button onClick={handleGofront}>
+                GO FRONT
+            </button>
         </>
     );
 }
