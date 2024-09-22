@@ -5,8 +5,10 @@ import ChessBoard from "../../components/ChessBoard/chessboard";
 import createRoom from "../../functions/createroom";
 import joinRoom from "../../functions/joinroom";
 import { getGame } from "../../functions/gamemanager";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const session = useSession()
   const [code, setCode] = useState<Number>();
   const [socket, setSocket] = useState<any | null>(null);
   const [game, setGame] = useState<any | null>(null);
@@ -23,12 +25,19 @@ export default function Home() {
   ]);
 
   const handleJoinRoom = (e: any) => {
-    joinRoom(e, setSocket);
+    if(session.data && session.data.user)
+      joinRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
+    else
+      joinRoom(e, setSocket, 'anonymous', null);
   };
 
   const handleCreateRoom = (e: any) => {
     try {
-      const roomCode = createRoom(e, setSocket);
+      let roomCode
+      if(session.data && session.data.user)
+        roomCode = createRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
+      else
+        roomCode = createRoom(e, setSocket, 'anonymous', null);
       setCode(roomCode);
     } catch (error) {
       console.error("Failed to create room:", error);

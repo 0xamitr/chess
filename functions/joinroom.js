@@ -3,20 +3,25 @@ import { io } from "socket.io-client";
 import { setGame } from './gamemanager.js'
 
 
-export default function joinRoom(e, setSocket) {
+export default function joinRoom(e, setSocket, name, id) {
     e.preventDefault();
     const socket = io("http://localhost:3005/");
     console.log(socket);
     const val = Number(e.target.num.value);
-
-    socket.emit('submit', val);
+    socket.emit('submit', val, id, name);
 
     socket.on('roomfull', () => {
         alert("roomfull");
     });
 
-    socket.on('connection_established', () => {
-        setGame(new Game(socket, val, true));
+    socket.on('connection_established', (userIds, names) => {
+        let index = userIds.indexOf(id)
+        if(index == 0)
+            index = 1
+        else
+            index = 0
+        console.log(userIds, names)
+        setGame(new Game(socket, val, true, name, id, names[index], userIds[index]));
         setSocket(socket);
     });
 }

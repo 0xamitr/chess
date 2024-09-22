@@ -1,42 +1,43 @@
 "use client"
 import CustomForm from '../../../components/Form/form'
 import CustomInput from '../../../components/Input/input'
-import { signOut } from 'next-auth/react'
+import { signIn, signOut, useSession } from 'next-auth/react'
+import {useRouter} from 'next/navigation'
 
-export default  function SignUp(){
+export default  function SignIn(){
+    const session = useSession()
+    const router = useRouter()
+    console.log(session)
+    if(session.data){
+        router.push('/')
+    }
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
         
-        const name = formData.get('username');
         const email = formData.get('email');
         const password = formData.get('password');
         console.log(email);
 
-        const response = await fetch('/api/user/signup', {
-            method: 'POST',
-            body: JSON.stringify({
-                name: name,
+        try{
+            const response = await signIn('credentials', {
+                redirect: false,
                 email: email,
                 password: password
-            }),
-            headers: {
-                'Content-Type': 'application/json'
+            })
+            if(response?.ok){
+                console.log('success')
+                router.push('/')
             }
-        })
+        }
+        catch(error){
+            console.log(error)
+        }
     }
     return(
         <CustomForm onSubmit={handleSubmit}>
-            <h2>SIGN UP</h2>
-            <CustomInput 
-                inputheading="Username"
-                type="text"
-                name="username"
-                required="required"
-                minLength={4} 
-                maxLength={20}
-            />
+            <h2>SIGN IN</h2>
             <CustomInput 
                 inputheading="Email"
                 type="email"
@@ -52,7 +53,6 @@ export default  function SignUp(){
                 maxLength={20}
             />
             <input type='submit' />
-            <button onClick={() => signOut()}>LOG out</button>
         </CustomForm >
     )
 }

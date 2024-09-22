@@ -1,7 +1,7 @@
 import { removeGame } from "../gamemanager";
 
 class Game {
-    constructor(socket, code, isWhite) {
+    constructor(socket, code, isWhite, name, id, opponentName, opponentId) {
         this.socket = socket;
         this.moves = [];
         this.time = 600;
@@ -10,7 +10,7 @@ class Game {
         this.onMove = null;
         this.code = code;
         this.acceptMove();
-        this.uploadGame();
+        this.listenEndGame();
         this.turn = isWhite;
         this.isWhite = isWhite;
         this.board = this.initializeBoard();
@@ -18,6 +18,10 @@ class Game {
         this.history = [JSON.parse(JSON.stringify(this.board))];
         this.totalmoves = 0;
         this.tempmove = 0;
+        this.name = name;
+        this.id = id
+        this.opponentName = opponentName
+        this.opponentId = opponentId
     }
 
     getCoords(move){
@@ -36,7 +40,7 @@ class Game {
             if(this.turn)
                 this.time = this.time - 1;
             if (this.time < 1) {
-                clearInterval(this.timer);  
+                this.endGame()
             }
         }, 1000);
     }
@@ -422,16 +426,18 @@ class Game {
         this.board[fromRow][fromCol] = '.';
     }
 
-    uploadGame() {
+    listenEndGame() {
         this.socket.on('endGame', () => {
             clearInterval(this.timer)
             removeGame()
             console.log("Game Over")
             this.socket.disconnect()
+
         })
     }
 
     endGame(){
+        uploadgame(this.moves, this.code)
         this.socket.emit('endGame', this.code)
     }
 

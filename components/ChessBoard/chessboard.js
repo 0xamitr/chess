@@ -27,11 +27,11 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     }
 
     const handleSquareClick = (e, i, j) => {
-        if(game.isWhite){
+        if (game.isWhite) {
             game.tempmove = game.totalmoves
             setboardState(game.history[game.tempmove])
         }
-        else{
+        else {
             game.tempmove = game.totalmoves
             setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
         }
@@ -95,9 +95,9 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     };
 
     const handleGoback = () => {
-        if(game.tempmove > 0)
+        if (game.tempmove > 0)
             game.tempmove--
-        if(game.isWhite)
+        if (game.isWhite)
             setboardState(game.history[game.tempmove])
         else
             setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
@@ -105,13 +105,13 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
 
     }
     const handleGofront = () => {
-        if(game.tempmove < game.totalmoves)
-                game.tempmove++
-        if(game.isWhite)
+        if (game.tempmove < game.totalmoves)
+            game.tempmove++
+        if (game.isWhite)
             setboardState(game.history[game.tempmove])
         else
             setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
-            
+
     }
 
 
@@ -185,6 +185,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
 
     return (
         <>
+            <h2>{game && game.opponentName}</h2>
             <div id='chessboard' className={`${styles.chessboard} ${isWhite !== false ? "" : styles.rotated}`}>
                 {boardState.map((row, i) => (
                     <div className={styles.row} key={i}>
@@ -204,6 +205,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                     </div>
                 ))}
             </div>
+            <h2>{game && game.name}</h2>
             <div>
                 {ImproveTime(time)}
             </div>

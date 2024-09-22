@@ -11,6 +11,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    password: {
+        type: String,
+        required: true,
+    },
     creation:{
         type: Date,
         required: true,
@@ -19,7 +23,7 @@ const UserSchema = new mongoose.Schema({
     elo: Number
 })
 
-const User = mongoose.models.user || mongoose.model('user', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema)
 
 
 export default User

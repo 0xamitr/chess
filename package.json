@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookies": "^0.9.1",
+    "cookies-next": "^4.2.1",
     "mongoose": "^8.4.0",
     "next": "14.2.3",
+    "next-auth": "^4.24.7",
     "react": "^18",
     "react-dom": "^18",
     "socket-io": "^1.0.0",
@@ -18,6 +22,7 @@
     "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
