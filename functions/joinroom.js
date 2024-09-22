@@ -16,8 +16,7 @@ export default function joinRoom(e, setSocket) {
     });
 
     socket.on('connection_established', () => {
-        const game = new Game(socket, val, true);
-        setGame(game);
+        setGame(new Game(socket, val, true));
         setSocket(socket);
     });
 }

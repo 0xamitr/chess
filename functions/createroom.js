@@ -9,8 +9,7 @@ export default function createRoom(e, setSocket) {
     console.log("Socket:", socket);
     socket.emit('code', code)
     socket.on('connection_established', () => {
-        const game = new Game(socket, code, false);
-        setGame(game)
+        setGame(new Game(socket, code, false))
         setSocket(socket)
     })
 

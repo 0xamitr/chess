@@ -1,3 +1,5 @@
+import { removeGame } from "../gamemanager";
+
 class Game {
     constructor(socket, code, isWhite) {
         this.socket = socket;
@@ -8,6 +10,7 @@ class Game {
         this.onMove = null;
         this.code = code;
         this.acceptMove();
+        this.uploadGame();
         this.turn = isWhite;
         this.isWhite = isWhite;
         this.board = this.initializeBoard();
@@ -318,7 +321,6 @@ class Game {
     }
 
     acceptMove() {
-        console.log('acceptMove called');
         this.socket.on('move', (move) => {
             this.pushMove(move)
             console.log(this.moves)
@@ -326,7 +328,6 @@ class Game {
             this.history.push(JSON.parse(JSON.stringify(this.board)))
             console.log(this.history)
             this.turn = !this.turn
-            console.log("yoyoyuhfodhfs")
             this.totalmoves++
             this.tempmove = this.totalmoves
             if (this.isCheck()) {
@@ -393,6 +394,7 @@ class Game {
             }
         }
         alert("Checkmate! YOU LOSE");
+        this.endGame()
         return true; // Return true if no valid moves found, meaning it's checkmate
     }
     getmoves() {
@@ -418,6 +420,19 @@ class Game {
         const piece = this.board[fromRow][fromCol];
         this.board[toRow][toCol] = piece;
         this.board[fromRow][fromCol] = '.';
+    }
+
+    uploadGame() {
+        this.socket.on('endGame', () => {
+            clearInterval(this.timer)
+            removeGame()
+            console.log("Game Over")
+            this.socket.disconnect()
+        })
+    }
+
+    endGame(){
+        this.socket.emit('endGame', this.code)
     }
 
 }

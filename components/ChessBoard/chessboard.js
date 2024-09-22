@@ -7,7 +7,6 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [validMoves, setValidMoves] = useState([]);
     const [time, setTime] = useState(null)
-    const [tempindex, setTempindex] = useState(0)
 
     useEffect(() => {
         if (game) {
@@ -28,6 +27,14 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     }
 
     const handleSquareClick = (e, i, j) => {
+        if(game.isWhite){
+            game.tempmove = game.totalmoves
+            setboardState(game.history[game.tempmove])
+        }
+        else{
+            game.tempmove = game.totalmoves
+            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+        }
         // Adjust coordinates for black's perspective
         let adjustedI = isWhite ? i : 7 - i;
         let adjustedJ = isWhite ? j : 7 - j;

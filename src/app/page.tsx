@@ -62,7 +62,13 @@ export default function Home() {
       const gameInstance = getGame();
       setIsWhite(gameInstance.isWhite);
       setGame(gameInstance);
-  
+      if (isWhite) {
+        setBoardState([...gameInstance.board.map((row: string[]) => [...row])]); // Deep copy
+      } else {
+        setBoardState(
+          [...gameInstance.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black
+        );
+      }
       socket.on('move', () => {
         if (isWhite) {
           setBoardState([...gameInstance.board.map((row: string[]) => [...row])]); // Deep copy
