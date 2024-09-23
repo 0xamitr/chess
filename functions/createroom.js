@@ -5,10 +5,20 @@ import { setGame } from './gamemanager.js'
 export default function createRoom(e, setSocket, name, id) {
     e.preventDefault()
     const code = Math.floor(Math.random() * 1000);
-    let socket = io("https://143.110.251.223:3005/")
+    let socket = io("http://143.110.251.223:3005", {
+        transports: ['websocket'],
+    });
     console.log(socket)
     console.log(id)
     console.log("Socket:", socket);
+    socket.on('connect_error', (err) => {
+        console.error('Connection Error:', err.message);
+    });
+    
+    socket.on('disconnect', (reason) => {
+        console.log('Disconnected:', reason);
+    });
+    
     socket.emit('code', code, id, name)
     socket.on('connection_established', (userIds, names) => {
         let index = userIds.indexOf(id)
