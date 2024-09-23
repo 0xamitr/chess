@@ -5,7 +5,9 @@ import { setGame } from './gamemanager.js'
 
 export default function joinRoom(e, setSocket, name, id) {
     e.preventDefault();
-    const socket = io("http://143.110.251.223:3005", {
+    let socket = io("http://143.110.251.223:3005", {
+        forceNew: true,
+        origins: 'https://chess-self-two.vercel.app/',
         transports: ['websocket'],
     });
     console.log(socket);

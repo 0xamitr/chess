@@ -6,6 +6,8 @@ export default function createRoom(e, setSocket, name, id) {
     e.preventDefault()
     const code = Math.floor(Math.random() * 1000);
     let socket = io("http://143.110.251.223:3005", {
+        forceNew: true,
+        origins: 'https://chess-self-two.vercel.app/',
         transports: ['websocket'],
     });
     console.log(socket)
