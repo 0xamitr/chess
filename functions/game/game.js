@@ -22,6 +22,9 @@ class Game {
         this.id = id
         this.opponentName = opponentName
         this.opponentId = opponentId
+        this.kingMove = false
+        this.leftrookMove = false
+        this.rightrookMove = false
     }
 
     getCoords(move){
@@ -33,6 +36,10 @@ class Game {
         const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
 
         return {from: [fromRow, fromCol], to: [toRow, toCol]}
+    }
+
+    movefromCoords(coords){
+
     }
 
     startTimer() {
@@ -211,6 +218,7 @@ class Game {
     }
 
     isValidRookMove(fromRow, fromCol, toRow, toCol) {
+        
         if (fromRow !== toRow && fromCol !== toCol)
             return false;
         if (fromRow === toRow) {
@@ -234,14 +242,36 @@ class Game {
 
 
     isValidKingMove(fromRow, fromCol, toRow, toCol) {
-        return Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1;
+        if(this.kingMove == false){
+            if (this.isWhite && this.board[fromRow][fromCol] != 'K')
+                return false
+            if (!this.isWhite && this.board[fromRow][fromCol] != 'k')
+                return false    
+            if(fromRow == toRow && fromCol == toCol + 2){
+                if(this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
+                    return false
+                if(this.rightrookMove == true)
+                    return false
+                return true
+            }
+            else if(fromRow == toRow && fromCol == toCol - 2){
+                console.log(fromRow, fromCol, toRow, toCol)
+                if(this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.')
+                    return false
+                if(this.rightrookMove == true)
+                    return false
+                return true
+            }
+        }
+        if(Math.abs(Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1)){
+            return Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1;
+        }
     }
 
     isValidKnightMove(fromRow, fromCol, toRow, toCol) {
         return (Math.abs(fromRow - toRow) === 2 && Math.abs(fromCol - toCol) === 1) ||
             (Math.abs(fromRow - toRow) === 1 && Math.abs(fromCol - toCol) === 2);
     }
-
 
     getTurn() {
         return this.turn
@@ -250,6 +280,7 @@ class Game {
     makeMove(from, to) {
         const fromRow = 8 - parseInt(from[1]);
         const fromCol = from.charCodeAt(0) - 'a'.charCodeAt(0);
+        const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
         if (this.isWhite) {
             if (this.getPieceAt(fromRow, fromCol) != this.getPieceAt(fromRow, fromCol).toUpperCase())
                 return false
@@ -261,6 +292,21 @@ class Game {
         if (!this.isMoveValid(from, to))
             return false
 
+        if(this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k'){
+            this.kingMove = true
+            if(toCol > fromCol){
+                let fromrook = String.fromCharCode(97 + 7) + (1);
+                let torook = String.fromCharCode(97 + 5) + (1);
+
+                this.makeMove(fromrook, torook)
+            }
+            else if(fromCol > toCol){
+                let fromrook = String.fromCharCode(97 + 0) + (1);
+                let torook = String.fromCharCode(97 + 3) + (1);
+
+                this.makeMove(fromrook, torook)
+            }
+        }
         if (this.turn) {
             const move = { from, to }
             const code = this.code

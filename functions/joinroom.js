@@ -5,7 +5,7 @@ import { setGame } from './gamemanager.js'
 
 export default function joinRoom(e, setSocket, name, id) {
     e.preventDefault();
-    let socket = io("https://socket.chessy.tech:3005")
+    let socket = io("http://localhost:3005")
     console.log(socket);
     const val = Number(e.target.num.value);
     socket.emit('submit', val, id, name);
