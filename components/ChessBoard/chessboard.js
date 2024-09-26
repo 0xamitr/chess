@@ -20,11 +20,13 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     }, [game])
 
     const ImproveTime = (time) => {
-        let minutes = parseInt(time / 60)
-        let seconds = time % 60
-
-        return `${minutes} : ${seconds}`
-    }
+        const newtime = Math.floor(time)
+        let minutes = Math.floor(newtime / 60); 
+        let seconds = newtime % 60;
+        return `${minutes} : ${seconds}`;
+    };
+    
+    
 
     const handleSquareClick = (e, i, j) => {
         if (game.isWhite) {
@@ -184,7 +186,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     // };
 
     return (
-        <>
+        <div>
             <h2>{game && game.opponentName}</h2>
             <div id='chessboard' className={`${styles.chessboard} ${isWhite !== false ? "" : styles.rotated}`}>
                 {boardState.map((row, i) => (
@@ -215,6 +217,6 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             <button onClick={handleGofront}>
                 GO FRONT
             </button>
-        </>
+        </div>
     );
 }

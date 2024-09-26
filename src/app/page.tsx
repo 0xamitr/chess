@@ -25,7 +25,7 @@ export default function Home() {
   ]);
 
   const handleJoinRoom = (e: any) => {
-    if(session.data && session.data.user)
+    if (session.data && session.data.user)
       joinRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
     else
       joinRoom(e, setSocket, 'anonymous', null);
@@ -34,7 +34,7 @@ export default function Home() {
   const handleCreateRoom = (e: any) => {
     try {
       let roomCode
-      if(session.data && session.data.user)
+      if (session.data && session.data.user)
         roomCode = createRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
       else
         roomCode = createRoom(e, setSocket, 'anonymous', null);
@@ -64,7 +64,7 @@ export default function Home() {
     else
       return false
   };
-  
+
 
   useEffect(() => {
     if (socket) {
@@ -89,22 +89,24 @@ export default function Home() {
       });
     }
   }, [socket, isWhite]); // Added isWhite as a dependency
-  
+
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game}/>
-      <form onSubmit={handleJoinRoom}>
-        <label>
-          <p>Number</p>
-          <input type="number" name="num" />
-        </label>
-        <input type="submit" />
-      </form>
-      <form onSubmit={handleCreateRoom}>
-        <p>{`${code}`}</p>
-        <input type="submit" />
-      </form>
+      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game} />
+      <div>
+        <form onSubmit={handleJoinRoom}>
+          <label>
+            <p>Number</p>
+            <input type="number" name="num" />
+          </label>
+          <input type="submit" value="Join Room" />
+        </form>
+        <form onSubmit={handleCreateRoom}>
+          <p>{`${code}`}</p>
+          <input type="submit" value="Create Room"/>
+        </form>
+      </div>
     </div>
   );
 }

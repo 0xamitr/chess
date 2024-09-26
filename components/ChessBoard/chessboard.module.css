@@ -1,14 +1,14 @@
 .chessboard {
     border: solid 1px black;
     overflow: hidden;
-    min-width: 320px;
+    /* min-width: 320px; */
     aspect-ratio: 1;
     position: relative;
 }
 
 .box {
     max-width: 88px;
-    min-width: 40px;
+    /* min-width: 40px; */
     width: 9vw;
     aspect-ratio: 1;
     border: solid 1px black;
@@ -31,9 +31,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: 5rem;
-    height: 5rem;
-    width: auto;
+    font-size: min(7vw, 72px);
     padding: 0;
     margin: 0;
     display: flex;
