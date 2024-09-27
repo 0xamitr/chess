@@ -7,9 +7,9 @@
 }
 
 .box {
-    max-width: 88px;
+    max-width: 60px;
     /* min-width: 40px; */
-    width: 9vw;
+    width: 6vw;
     aspect-ratio: 1;
     border: solid 1px black;
 }
@@ -31,7 +31,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: min(7vw, 72px);
+    font-size: min(5vw, 50px);
     padding: 0;
     margin: 0;
     display: flex;
