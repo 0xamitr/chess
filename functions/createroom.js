@@ -5,7 +5,7 @@ import { setGame } from './gamemanager.js'
 export default function createRoom(e, setSocket, name, id) {
     e.preventDefault()
     const code = Math.floor(Math.random() * 1000);
-    let socket = io(process.env.SERVER)
+    let socket = io(process.env.NEXT_PUBLIC_SERVER)
     console.log(socket)
     console.log(id)
     console.log("Socket:", socket);

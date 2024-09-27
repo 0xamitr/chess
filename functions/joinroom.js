@@ -5,7 +5,7 @@ import { setGame } from './gamemanager.js'
 
 export default function joinRoom(e, setSocket, name, id) {
     e.preventDefault();
-    let socket = io(process.env.SERVER);
+    let socket = io(process.env.NEXT_PUBLIC_SERVER);
     console.log(socket);
     const val = Number(e.target.num.value);
     socket.emit('submit', val, id, name);
