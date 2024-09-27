@@ -95,16 +95,15 @@ export default function Home() {
     <div className={styles.home}>
       <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game} />
       <div>
-        <form onSubmit={handleJoinRoom}>
+        <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>
-            <p>Number</p>
-            <input type="number" name="num" />
+            <input className={styles.inp} type="number" name="num" />
           </label>
-          <input type="submit" value="Join Room" />
+          <input className={styles.btn} type="submit" value="Join Room" />
         </form>
-        <form onSubmit={handleCreateRoom}>
-          <p>{`${code}`}</p>
-          <input type="submit" value="Create Room"/>
+        <form className={styles.form2} onSubmit={handleCreateRoom}>
+          <p>{code && `${code}`}</p>
+          <input className={styles.btn} type="submit" value="Create Room"/>
         </form>
       </div>
     </div>
