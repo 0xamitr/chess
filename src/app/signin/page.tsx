@@ -53,6 +53,7 @@ export default  function SignIn(){
                 maxLength={20}
             />
             <input type='submit' />
+            <div><p>Dont have an account? </p><a href='signup'>SignUp Now!</a></div>
         </CustomForm >
     )
 }

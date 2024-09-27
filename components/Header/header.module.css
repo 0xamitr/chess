@@ -1,5 +1,7 @@
 .header{
-    height: 10vh;
+    height: 10%;
+    justify-content: space-between;
+    padding: 0 100px;
     display: flex;
     align-items: center;
 }
