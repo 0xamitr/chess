@@ -31,7 +31,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: min(5vw, 50px);
+    font-size: min(4.5vw, 45px);
     padding: 0;
     margin: 0;
     display: flex;
