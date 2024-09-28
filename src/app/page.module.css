@@ -37,5 +37,8 @@
   .home{
     flex-direction: column;
   }
-  
+}
+
+.side{
+  min-width: 10%;
 }

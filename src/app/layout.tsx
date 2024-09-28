@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "../../components/Header/header";
 import Footer from "../../components/Footer/footer";
 import SessionWrapper from "./sessionwrapper";
+import { PopupProvider } from '../../components/context/PopupContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <SessionWrapper>
-          <Header />
-          <main>{children}</main>
-          {/* <Footer /> */}
+          <PopupProvider>
+            <Header />
+            <main>{children}</main>
+            {/* <Footer /> */}
+          </PopupProvider>
         </SessionWrapper>
       </body>
     </html>

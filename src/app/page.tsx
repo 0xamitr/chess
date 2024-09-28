@@ -6,8 +6,10 @@ import createRoom from "../../functions/createroom";
 import joinRoom from "../../functions/joinroom";
 import { getGame } from "../../functions/gamemanager";
 import { useSession } from "next-auth/react";
+import { usePopup } from '../../components/context/PopupContext';
 
 export default function Home() {
+  const { showPopup } = usePopup();
   const session = useSession()
   const [code, setCode] = useState<Number>();
   const [socket, setSocket] = useState<any | null>(null);
@@ -25,13 +27,15 @@ export default function Home() {
   ]);
 
   const handleJoinRoom = (e: any) => {
+    console.log("Joining room...");
     if (session.data && session.data.user)
-      joinRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
+      joinRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id, showPopup);
     else
-      joinRoom(e, setSocket, 'anonymous', null);
+      joinRoom(e, setSocket, 'anonymous', null, showPopup);
   };
 
   const handleCreateRoom = (e: any) => {
+    console.log("Creating room...");
     try {
       let roomCode
       if (session.data && session.data.user)
@@ -94,16 +98,17 @@ export default function Home() {
   return (
     <div className={styles.home}>
       <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game} />
-      <div>
-        <form className={styles.form1} onSubmit={handleJoinRoom}>
+      <div className={styles.side}>
+        {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>
             <input className={styles.inp} type="number" name="num" />
           </label>
           <input className={styles.btn} type="submit" value="Join Room" />
         </form>
+        }
         <form className={styles.form2} onSubmit={handleCreateRoom}>
-          <p>{code && `${code}`}</p>
-          <input className={styles.btn} type="submit" value="Create Room"/>
+          <p>{code && `Enter this code: ${code}`}</p>
+          <input className={styles.btn} type="submit" value="Create Room" />
         </form>
       </div>
     </div>

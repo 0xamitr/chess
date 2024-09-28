@@ -2,8 +2,7 @@ import Game from './game/game.js'
 import { io } from "socket.io-client";
 import { setGame } from './gamemanager.js'
 
-
-export default function joinRoom(e, setSocket, name, id) {
+export default function joinRoom(e, setSocket, name, id, showPopup) {
     e.preventDefault();
     let socket = io(process.env.NEXT_PUBLIC_SERVER);
     console.log(socket);
@@ -16,9 +15,14 @@ export default function joinRoom(e, setSocket, name, id) {
     socket.on('disconnect', (reason) => {
         console.log('Disconnected:', reason);
     });
+
+    socket.on(('roomnotfound'), () => {
+        showPopup("Room not found. Please try again.");
+    });
     
     socket.on('roomfull', () => {
-        alert("roomfull");
+        throw new Error("Room is already full.");
+
     });
 
     socket.on('connection_established', (userIds, names) => {

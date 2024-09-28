@@ -400,7 +400,6 @@ class Game {
                         let out = String.fromCharCode(97 + coords.from[1])
                         out += 8 - coords.from[0]
                         return out
-
                     }
                 }
             }
@@ -434,7 +433,7 @@ class Game {
                     if (this.isCheck())
                         this.checkCheckmate()
                 }
-                this.pushMove(move[0])
+                this.pushMove('0-0')
                 this.turn = !this.turn
                 if(this.turn)
                     this.startTimer = Date.now()
