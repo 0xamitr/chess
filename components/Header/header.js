@@ -5,7 +5,6 @@ import styles from "./header.module.css"
 
 export default function Header(){
     const session = useSession()
-    console.log(session)
     return(
         <header className={styles.header}>
             <h1><a href="/">CHESSY.Tech</a></h1>

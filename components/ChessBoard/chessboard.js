@@ -1,15 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
 
 export default function ChessBoard({ color1, color2, boardState, setboardState, onMove, isWhite, game }) {
+    const boardRef = useRef([]); // Array to store refs for each cell
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [validMoves, setValidMoves] = useState([]);
     const [time, setTime] = useState(null)
+    const [fromto, setFromto] = useState(null)  
+
+    // Initialize refs dynamically for an 8x8 chessboard
+    const initializeRefs = () => {
+      for (let i = 0; i < 8; i++) {
+        boardRef.current[i] = [];
+        for (let j = 0; j < 8; j++) {
+          boardRef.current[i][j] = React.createRef();
+        }
+      }
+    };
+  
+    initializeRefs();
+
+    const handlePromotion = (e) => {
+        let move = [{ from: fromto.from, to: fromto.to}, {promotion: '' }]
+        if(e.target.innerText === '♕')
+            move[1].promotion = 'Q'
+        else if(e.target.innerText === '♗')
+            move[1].promotion = 'B'
+        else if(e.target.innerText === '♖')
+            move[1].promotion = 'R'
+        else if(e.target.innerText === '♘')
+            move[1].promotion = 'N'
+        const toRow = 8 - parseInt(fromto.to[1]);
+        const toCol = fromto.to.charCodeAt(0) - 'a'.charCodeAt(0);
+        const promotion = boardRef.current[toRow][toCol].current;
+        promotion.style.display = 'none'
+        game.socket.emit('move', move, game.code);
+    }
+
+    const getPromotion = (from, to) => {
+        const toRow = 8 - parseInt(to[1]);
+        const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
+        const promotion = boardRef.current[toRow][toCol].current;
+        promotion.style.display = 'block'
+        setFromto({from: from, to: to})
+    }
 
     useEffect(() => {
         if (game) {
+            game.getPromotion = getPromotion;
             const interval = setInterval(() => {
                 setTime(game.time);
                 if (game.time < 1) {
@@ -21,12 +61,10 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
 
     const ImproveTime = (time) => {
         const newtime = Math.floor(time)
-        let minutes = Math.floor(newtime / 60); 
+        let minutes = Math.floor(newtime / 60);
         let seconds = newtime % 60;
         return `${minutes} : ${seconds}`;
     };
-    
-    
 
     const handleSquareClick = (e, i, j) => {
         if (game.isWhite) {
@@ -55,7 +93,6 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                 from = String.fromCharCode(97 + 7 - selectedPosition.j) + (8 - 7 + selectedPosition.i);
 
             let to = String.fromCharCode(97 + adjustedJ) + (8 - adjustedI);
-            console.log(from, to)
             if (!onMove(from, to)) {
                 setSelectedPiece(boardState[i][j])
                 setSelectedPosition({ i: i, j: j });
@@ -202,6 +239,12 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                                 <p
                                     id={`chesspiece-${i}-${j}`}
                                     className={styles.chesspiece}>{getChessPiece(piece)}</p>
+                                <div className={styles.promotion} ref={boardRef.current[i][j]}>
+                                    <p onClick={handlePromotion}>♕</p>
+                                    <p onClick={handlePromotion}>♗</p>
+                                    <p onClick={handlePromotion}>♖</p>
+                                    <p onClick={handlePromotion}>♘</p>
+                                </div>
                             </div>
                         ))}
                     </div>

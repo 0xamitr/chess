@@ -2,13 +2,10 @@ import Game from './game/game.js'
 import { io } from "socket.io-client";
 import { setGame } from './gamemanager.js'
 
-export default function createRoom(e, setSocket, name, id) {
+export default function createRoom(e, setSocket, name, id, getPromotion) {
     e.preventDefault()
     const code = Math.floor(Math.random() * 1000);
     let socket = io(process.env.NEXT_PUBLIC_SERVER)
-    console.log(socket)
-    console.log(id)
-    console.log("Socket:", socket);
     socket.on('connect_error', (err) => {
         console.error('Connection Error:', err.message);
     });
@@ -24,8 +21,7 @@ export default function createRoom(e, setSocket, name, id) {
             index = 1
         else
             index = 0
-        console.log(userIds, names)
-        setGame(new Game(socket, code, false, name, id, names[index], userIds[index]));
+        setGame(new Game(socket, code, false, name, id, names[index], userIds[index], getPromotion));
         setSocket(socket);
     });
     return code

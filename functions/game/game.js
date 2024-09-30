@@ -38,14 +38,15 @@ class Game {
                 this.time -= elapsed;
 
                 if (this.time <= 0) {
-                    this.endGame();
+                    this.time = 0;
                     clearInterval(this.timer);
+                    this.endGame();
                 }
                 this.starttime = currentTime;
             }
-            else{
+            else {
                 this.starttime = Date.now(); // Reset for accurate tracking
-    
+
             }
         }, 100);
     }
@@ -83,6 +84,27 @@ class Game {
         return this.board[row][col];
     }
 
+    isSquareUnderAttack(row, col, isWhite) {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                const piece = this.board[i][j];
+                if (isWhite && piece === piece.toUpperCase()) {
+                    continue;
+                }
+                if (!isWhite && piece === piece.toLowerCase()) {
+                    continue;
+                }
+
+                const from = String.fromCharCode('a'.charCodeAt(0) + j) + (8 - i);
+                const to = String.fromCharCode('a'.charCodeAt(0) + col) + (8 - row);
+                if (this.isMoveValidCp(from, to)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     isMoveValid(from, to) {
         if (!from)
             return false
@@ -93,17 +115,19 @@ class Game {
 
         const piece = this.board[fromRow][fromCol];
         const targetPiece = this.board[toRow][toCol];
-
         if (piece === '.') return false;
         if (targetPiece != '.' && this.isSamePlayer(piece, targetPiece)) {
             return false;
         }
 
-        if (this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toUpperCase())
+        if (this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toUpperCase()) {
             return false
 
-        if (!this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toLowerCase())
+        }
+
+        if (!this.isWhite && this.board[fromRow][fromCol] != this.board[fromRow][fromCol].toLowerCase()) {
             return false
+        }
 
         this.board[toRow][toCol] = piece;
         this.board[fromRow][fromCol] = '.';
@@ -113,9 +137,10 @@ class Game {
         this.board[fromRow][fromCol] = piece;
         this.board[toRow][toCol] = targetPiece;
 
-        if (check)
+        if (check) {
+            this.check = false
             return false
-
+        }
         switch (piece.toLowerCase()) {
             case 'p':
                 return this.isValidPawnMove(fromRow, fromCol, toRow, toCol, this.isWhite, targetPiece);
@@ -194,7 +219,7 @@ class Game {
     }
 
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
-        const direction = isWhite ? -1 : 1;Date
+        const direction = isWhite ? -1 : 1; Date
         if (fromCol === toCol) {
             if (target === '.') {
                 if (fromRow + direction === toRow) {
@@ -232,7 +257,6 @@ class Game {
     }
 
     isValidRookMove(fromRow, fromCol, toRow, toCol) {
-
         if (fromRow !== toRow && fromCol !== toCol)
             return false;
         if (fromRow === toRow) {
@@ -264,16 +288,32 @@ class Game {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
                     return false
-                if (this.rightrookMove == true)
+                if (this.check)
+                    return false
+                if (this.leftrookMove == true)
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol - 1, this.isWhite))
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol - 2, this.isWhite))
                     return false
                 return true
             }
             else if (fromRow == toRow && fromCol == toCol - 2) {
-                console.log(fromRow, fromCol, toRow, toCol)
-                if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.')
+                if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.') {
                     return false
-                if (this.rightrookMove == true)
+                }
+                if (this.check) {
                     return false
+                }
+                if (this.rightrookMove == true) {
+                    return false
+                }
+                if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite)) {
+                    return false
+                }
+                if (this.isSquareUnderAttack(fromRow, fromCol + 2, this.isWhite)) {
+                    return false
+                }
                 return true
             }
         }
@@ -281,14 +321,26 @@ class Game {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
                     return false
+                if (this.check)
+                    return false
                 if (this.leftrookMove == true)
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol - 1, this.isWhite))
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol - 2, this.isWhite))
                     return false
                 return true
             }
             else if (fromRow == toRow && fromCol == toCol - 2) {
                 if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.')
                     return false
+                if (this.check)
+                    return false
                 if (this.rightrookMove == true)
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite))
+                    return false
+                if (this.isSquareUnderAttack(fromRow, fromCol + 2, this.isWhite))
                     return false
                 return true
             }
@@ -367,9 +419,17 @@ class Game {
             this.kingMove = true
         }
         else {
-            this.socket.emit('move', move, code)
-            this.check = false
+            if (parseInt(to[1]) == 8 && this.board[fromRow][fromCol] == 'P') {
+                this.getPromotion(from, to);
+            }
+            else if (parseInt(to[1]) == 1 && this.board[fromRow][fromCol] == 'p') {
+                this.getPromotion(from, to);
+            }
+            else {
+                this.socket.emit('move', move, code)
+            }
         }
+        this.check = false
         return true
     }
 
@@ -408,8 +468,12 @@ class Game {
     }
 
     pushMove(move) {
+        if (move == '0-0' || move == '0-0-0') {
+            this.moves.push(move)
+            console.log(this.moves)
+            return;
+        }
         const coords = this.getCoords(move)
-        console.log(coords.from)
         const pieceMoved = this.board[coords.from[0]][coords.from[1]].toUpperCase()
         const destinationPiece = this.board[coords.to[0]][coords.to[1]]
         let moveMade = ""
@@ -422,20 +486,33 @@ class Game {
             moveMade += 'x'
         moveMade += move.to
         this.moves.push(moveMade)
+        console.log(this.moves)
     }
 
     acceptMove() {
         this.socket.on('move', (move) => {
-            console.log(move)
             if (Array.isArray(move)) {
-                for (let i = 0; i < move.length; i++) {
-                    this.applyMove(move[i])
-                    if (this.isCheck())
-                        this.checkCheckmate()
+                console.log(move)
+                if (move[1].hasOwnProperty('promotion')) {
+                    this.pushMove({ from: move[0].from, to: move[0].to })
+                    this.applyMove(move[0])
+                    const toRow = 8 - parseInt(move[0].to[1]);
+                    const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+                    this.board[toRow][toCol] = move[1].promotion
                 }
-                this.pushMove('0-0')
+                else {
+                    for (let i = 0; i < move.length; i++) {
+                        this.applyMove(move[i])
+                        if (this.isCheck())
+                            this.checkCheckmate()
+                    }
+                    if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 2)
+                        this.pushMove('0-0')
+                    else
+                        this.pushMove('0-0-0')
+                }
                 this.turn = !this.turn
-                if(this.turn)
+                if (this.turn)
                     this.startTimer = Date.now()
                 this.totalmoves++
                 this.tempmove = this.totalmoves
@@ -445,15 +522,13 @@ class Game {
                 this.pushMove(move)
                 this.applyMove(move)
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
-                console.log(this.history)
                 this.turn = !this.turn
-                if(this.turn)
+                if (this.turn)
                     this.startTimer = Date.now()
                 this.totalmoves++
                 this.tempmove = this.totalmoves
-                if (this.isCheck()) {
+                if (this.isCheck()) 
                     this.checkCheckmate()
-                }
             }
         })
     }
@@ -479,7 +554,6 @@ class Game {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), String.fromCharCode(97 + kingCol) + (8 - kingRow))) {
-                    console.log("yo")
                     this.check = true
                     return true
                 }

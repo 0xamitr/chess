@@ -2,10 +2,9 @@ import Game from './game/game.js'
 import { io } from "socket.io-client";
 import { setGame } from './gamemanager.js'
 
-export default function joinRoom(e, setSocket, name, id, showPopup) {
+export default function joinRoom(e, setSocket, name, id, showPopup, getPromotion) {
     e.preventDefault();
     let socket = io(process.env.NEXT_PUBLIC_SERVER);
-    console.log(socket);
     const val = Number(e.target.num.value);
     socket.emit('submit', val, id, name);
     socket.on('connect_error', (err) => {
@@ -31,8 +30,7 @@ export default function joinRoom(e, setSocket, name, id, showPopup) {
             index = 1
         else
             index = 0
-        console.log(userIds, names)
-        setGame(new Game(socket, val, true, name, id, names[index], userIds[index]));
+        setGame(new Game(socket, val, true, name, id, names[index], userIds[index], getPromotion));
         setSocket(socket);
     });
 }

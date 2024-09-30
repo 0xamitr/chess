@@ -33,12 +33,12 @@
   border-radius: 5px;
 }
 
+.side{
+  min-width: 10%;
+}
+
 @media screen and (max-width: 768px){
   .home{
     flex-direction: column;
   }
-}
-
-.side{
-  min-width: 10%;
 }

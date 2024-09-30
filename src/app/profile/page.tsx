@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react"
 
 export default function Profile(){
     const session = useSession()
-    console.log(session)
     return(
         <div>
             <h1>Profile</h1>
