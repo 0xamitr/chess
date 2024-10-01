@@ -1,6 +1,5 @@
 .chessboard {
     border: solid 1px black;
-    overflow: hidden;
     /* min-width: 320px; */
     aspect-ratio: 1;
     position: relative;
@@ -44,16 +43,18 @@
     z-index: 100;
     position: absolute;
     display: none;
+    bottom: 0;
 }
 
 .promotion p{
-    font-size: 30px;
+    font-size: min(4vw, 40px);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
-    width: 40px;
-    height: 40px;
+    max-width: 50px;
+    width: 5vw;
+    aspect-ratio: 1;
     background-color: white;
     border: solid 2px black;
 }

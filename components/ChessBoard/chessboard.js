@@ -8,43 +8,73 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [validMoves, setValidMoves] = useState([]);
     const [time, setTime] = useState(null)
-    const [fromto, setFromto] = useState(null)  
+    const [fromto, setFromto] = useState(null)
 
     // Initialize refs dynamically for an 8x8 chessboard
     const initializeRefs = () => {
-      for (let i = 0; i < 8; i++) {
-        boardRef.current[i] = [];
-        for (let j = 0; j < 8; j++) {
-          boardRef.current[i][j] = React.createRef();
+        for (let i = 0; i < 8; i++) {
+            boardRef.current[i] = [];
+            for (let j = 0; j < 8; j++) {
+                boardRef.current[i][j] = React.createRef();
+            }
         }
-      }
     };
-  
+
     initializeRefs();
 
     const handlePromotion = (e) => {
-        let move = [{ from: fromto.from, to: fromto.to}, {promotion: '' }]
-        if(e.target.innerText === '♕')
-            move[1].promotion = 'Q'
-        else if(e.target.innerText === '♗')
-            move[1].promotion = 'B'
-        else if(e.target.innerText === '♖')
-            move[1].promotion = 'R'
-        else if(e.target.innerText === '♘')
-            move[1].promotion = 'N'
-        const toRow = 8 - parseInt(fromto.to[1]);
-        const toCol = fromto.to.charCodeAt(0) - 'a'.charCodeAt(0);
+        let move = [{ from: fromto.from, to: fromto.to }, { promotion: '' }]
+        if (game.isWhite) {
+            if (e.target.innerText === '♕')
+                move[1].promotion = 'Q'
+            else if (e.target.innerText === '♗')
+                move[1].promotion = 'B'
+            else if (e.target.innerText === '♖')
+                move[1].promotion = 'R'
+            else if (e.target.innerText === '♘')
+                move[1].promotion = 'N'
+        }
+        else {
+            if (e.target.innerText === '♛')
+                move[1].promotion = 'q'
+            else if (e.target.innerText === '♝')
+                move[1].promotion = 'b'
+            else if (e.target.innerText === '♜')
+                move[1].promotion = 'r'
+            else if (e.target.innerText === '♞')
+                move[1].promotion = 'n'
+        }
+        let toRow
+        let toCol
+        if (game.isWhite) {
+            toRow = 8 - parseInt(fromto.to[1]);
+            toCol = fromto.to.charCodeAt(0) - 'a'.charCodeAt(0);
+        }
+        else{
+            toRow = parseInt(fromto.to[1]) - 1;
+            toCol = 'h'.charCodeAt(0) - fromto.to.charCodeAt(0);
+        }
+        console.log(toRow, toCol)
         const promotion = boardRef.current[toRow][toCol].current;
         promotion.style.display = 'none'
         game.socket.emit('move', move, game.code);
     }
 
     const getPromotion = (from, to) => {
-        const toRow = 8 - parseInt(to[1]);
-        const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
+        let toRow
+        let toCol
+        if (game.isWhite) {
+            toRow = 8 - parseInt(to[1]);
+            toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
+        }
+        else{
+            toRow = parseInt(to[1]) - 1;
+            toCol = 'h'.charCodeAt(0) - to.charCodeAt(0);
+        }
+        console.log(toRow, toCol)
         const promotion = boardRef.current[toRow][toCol].current;
-        promotion.style.display = 'block'
-        setFromto({from: from, to: to})
+        promotion.style.display = 'flex'
+        setFromto({ from: from, to: to })
     }
 
     useEffect(() => {
@@ -150,7 +180,6 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             setboardState(game.history[game.tempmove])
         else
             setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
-
     }
 
 
@@ -239,12 +268,28 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                                 <p
                                     id={`chesspiece-${i}-${j}`}
                                     className={styles.chesspiece}>{getChessPiece(piece)}</p>
-                                <div className={styles.promotion} ref={boardRef.current[i][j]}>
-                                    <p onClick={handlePromotion}>♕</p>
-                                    <p onClick={handlePromotion}>♗</p>
-                                    <p onClick={handlePromotion}>♖</p>
-                                    <p onClick={handlePromotion}>♘</p>
-                                </div>
+                                {i == 0 &&
+                                    <div className={styles.promotion} ref={boardRef.current[i][j]}>
+                                        {
+                                            game && game.isWhite ?
+                                                <>
+                                                    <p onClick={handlePromotion}>♕</p>
+                                                    <p onClick={handlePromotion}>♗</p>
+                                                    <p onClick={handlePromotion}>♖</p>
+                                                    <p onClick={handlePromotion}>♘</p>
+                                                </>
+                                                :
+                                                <>
+                                                    <p onClick={handlePromotion}>♛</p>
+                                                    <p onClick={handlePromotion}>♝</p>
+                                                    <p onClick={handlePromotion}>♜</p>
+                                                    <p onClick={handlePromotion}>♞</p>
+                                                </>
+
+                                        }
+
+                                    </div>
+                                }
                             </div>
                         ))}
                     </div>

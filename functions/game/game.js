@@ -365,6 +365,7 @@ class Game {
         const fromRow = 8 - parseInt(from[1]);
         const fromCol = from.charCodeAt(0) - 'a'.charCodeAt(0);
         const toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
+        const toRow = 8 - parseInt(to[1]);
         if (this.isWhite) {
             if (this.getPieceAt(fromRow, fromCol) != this.getPieceAt(fromRow, fromCol).toUpperCase())
                 return false
@@ -380,15 +381,20 @@ class Game {
         const code = this.code
 
         if (this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k') {
+            if(fromRow != toRow){
+                this.socket.emit('move', move, code)
+                this.check = false
+                return true
+            }
             if (this.isWhite) {
                 if (this.kingMove == false) {
-                    if (toCol > fromCol) {
+                    if (toCol - fromCol == 2) {
                         let fromrook = String.fromCharCode(97 + 7) + (1);
                         let torook = String.fromCharCode(97 + 5) + (1);
                         move = [{ from, to }, { from: fromrook, to: torook }]
                         this.socket.emit('move', move, code)
                     }
-                    else if (fromCol > toCol) {
+                    else if (fromCol - toCol == 2) {
                         let fromrook = String.fromCharCode(97 + 0) + (1);
                         let torook = String.fromCharCode(97 + 3) + (1);
                         move = [{ from, to }, { from: fromrook, to: torook }]
@@ -400,13 +406,13 @@ class Game {
             }
             else {
                 if (this.kingMove == false) {
-                    if (toCol > fromCol) {
+                    if (toCol - fromCol == 2) {
                         let fromrook = String.fromCharCode(97 + 7) + (8);
                         let torook = String.fromCharCode(97 + 5) + (8);
                         move = [{ from, to }, { from: fromrook, to: torook }]
                         this.socket.emit('move', move, code)
                     }
-                    else if (fromCol > toCol) {
+                    else if (fromCol - toCol == 2) {
                         let fromrook = String.fromCharCode(97 + 0) + (8);
                         let torook = String.fromCharCode(97 + 3) + (8);
                         move = [{ from, to }, { from: fromrook, to: torook }]
