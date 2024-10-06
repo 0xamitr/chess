@@ -26,6 +26,7 @@ class Game {
         this.kingMove = false
         this.leftrookMove = false
         this.rightrookMove = false
+        this.enPassant = 0
     }
 
     startTimer() {
@@ -219,7 +220,7 @@ class Game {
     }
 
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
-        const direction = isWhite ? -1 : 1; Date
+        const direction = isWhite ? -1 : 1;
         if (fromCol === toCol) {
             if (target === '.') {
                 if (fromRow + direction === toRow) {
@@ -231,6 +232,12 @@ class Game {
         } else {
             if (Math.abs(fromCol - toCol) === 1 && fromRow + direction === toRow) {
                 return target !== '.' && (isWhite !== (target === target.toUpperCase()));
+            }
+            if(this.enPassant != 0){
+                if(fromRow == 3 && toRow == 2 && toCol == this.enPassant && Math.abs(fromCol - toCol) == 1 && this.board[toRow][toCol] == '.' && this.board[toRow + 1][toCol] == 'P')
+                    return true
+                if(fromRow == 4 && toRow == 5 && toCol == this.enPassant && Math.abs(fromCol - toCol) == 1 && this.board[toRow][toCol] == '.' && this.board[toRow - 1][toCol] == 'p')
+                    return true
             }
         }
         return false;
@@ -499,6 +506,8 @@ class Game {
         this.socket.on('move', (move) => {
             if (Array.isArray(move)) {
                 console.log(move)
+
+                //promotion
                 if (move[1].hasOwnProperty('promotion')) {
                     this.pushMove({ from: move[0].from, to: move[0].to })
                     this.applyMove(move[0])
@@ -506,6 +515,7 @@ class Game {
                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
                     this.board[toRow][toCol] = move[1].promotion
                 }
+                //castling
                 else {
                     for (let i = 0; i < move.length; i++) {
                         this.applyMove(move[i])
@@ -524,7 +534,15 @@ class Game {
                 this.tempmove = this.totalmoves
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
             }
+            //rest of the moves
             else {
+                if(move.from[1] == '2' && move.to[1] == '4')
+                    this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
+                else if(move.from[1] == '7' && move.to[1] == '5')
+                    this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
+                else
+                    this.enPassant = 0;
+
                 this.pushMove(move)
                 this.applyMove(move)
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
