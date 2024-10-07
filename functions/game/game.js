@@ -230,14 +230,13 @@ class Game {
                 }
             }
         } else {
+            if(this.enPassant != 0){
+                if(Math.abs(fromCol - toCol) == 1 && fromRow + direction == toRow && toCol == this.enPassant){
+                    return true
+                }
+            }
             if (Math.abs(fromCol - toCol) === 1 && fromRow + direction === toRow) {
                 return target !== '.' && (isWhite !== (target === target.toUpperCase()));
-            }
-            if(this.enPassant != 0){
-                if(fromRow == 3 && toRow == 2 && toCol == this.enPassant && Math.abs(fromCol - toCol) == 1 && this.board[toRow][toCol] == '.' && this.board[toRow + 1][toCol] == 'P')
-                    return true
-                if(fromRow == 4 && toRow == 5 && toCol == this.enPassant && Math.abs(fromCol - toCol) == 1 && this.board[toRow][toCol] == '.' && this.board[toRow - 1][toCol] == 'p')
-                    return true
             }
         }
         return false;
@@ -432,6 +431,12 @@ class Game {
             this.kingMove = true
         }
         else {
+            if(this.enPassant != 0){
+                if(parseInt(from[1]) == 4 && this.board[fromRow][fromCol] == 'p' && this.enPassant == toCol)
+                    move = [{from, to}, 'enPassant']
+                else if(parseInt(from[1]) == 5 && this.board[fromRow][fromCol] == 'P' && this.enPassant == toCol)
+                    move = [{from, to}, 'enPassant']
+            }
             if (parseInt(to[1]) == 8 && this.board[fromRow][fromCol] == 'P') {
                 this.getPromotion(from, to);
             }
@@ -515,6 +520,15 @@ class Game {
                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
                     this.board[toRow][toCol] = move[1].promotion
                 }
+                //enpassant
+                else if(move[1] == 'enPassant'){
+                    this.pushMove({ from: move[0].from, to: move[0].to })
+                    this.applyMove(move[0])
+                    const toRow = 8 - parseInt(move[0].to[1]);
+                    const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+                    this.board[toRow + 1][toCol] = '.'
+                    this.enPassant = 0
+                }
                 //castling
                 else {
                     for (let i = 0; i < move.length; i++) {
@@ -533,6 +547,7 @@ class Game {
                 this.totalmoves++
                 this.tempmove = this.totalmoves
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
+                this.enPassant = 0;
             }
             //rest of the moves
             else {
