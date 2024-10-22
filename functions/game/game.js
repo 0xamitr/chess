@@ -568,10 +568,25 @@ class Game {
                 this.tempmove = this.totalmoves
                 if (this.isCheck()) 
                     this.checkCheckmate()
+                else
+                    this.checkStalemate()
             }
         })
     }
 
+    checkStalemate() {
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                const from = String.fromCharCode(97 + j) + (8 - i)
+                const moves = getValidMoves(from)
+                if(moves.length > 0)
+                    return false
+            }
+        }
+        alert("Stalemate! It's a draw")
+        return true
+    }
+    
     isCheck() {
         let kingRow, kingCol
         for (let i = 0; i < 8; i++) {
@@ -632,6 +647,7 @@ class Game {
         this.endGame()
         return true; // Return true if no valid moves found, meaning it's checkmate
     }
+
     getmoves() {
         return this.moves;
     }
