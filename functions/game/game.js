@@ -230,8 +230,8 @@ class Game {
                 }
             }
         } else {
-            if(this.enPassant != 0){
-                if(Math.abs(fromCol - toCol) == 1 && fromRow + direction == toRow && toCol == this.enPassant){
+            if (this.enPassant != 0) {
+                if (Math.abs(fromCol - toCol) == 1 && fromRow + direction == toRow && toCol == this.enPassant) {
                     return true
                 }
             }
@@ -279,11 +279,9 @@ class Game {
         return true;
     }
 
-
     isValidQueenMove(fromRow, fromCol, toRow, toCol) {
         return this.isValidRookMove(fromRow, fromCol, toRow, toCol) || this.isValidBishopMove(fromRow, fromCol, toRow, toCol);
     }
-
 
     isValidKingMove(fromRow, fromCol, toRow, toCol) {
         if (this.isWhite && this.board[fromRow][fromCol] != 'K')
@@ -387,7 +385,7 @@ class Game {
         const code = this.code
 
         if (this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k') {
-            if(fromRow != toRow){
+            if (fromRow != toRow) {
                 this.socket.emit('move', move, code)
                 this.check = false
                 return true
@@ -431,11 +429,11 @@ class Game {
             this.kingMove = true
         }
         else {
-            if(this.enPassant != 0){
-                if(parseInt(from[1]) == 4 && this.board[fromRow][fromCol] == 'p' && this.enPassant == toCol)
-                    move = [{from, to}, 'enPassant']
-                else if(parseInt(from[1]) == 5 && this.board[fromRow][fromCol] == 'P' && this.enPassant == toCol)
-                    move = [{from, to}, 'enPassant']
+            if (this.enPassant != 0) {
+                if (parseInt(from[1]) == 4 && this.board[fromRow][fromCol] == 'p' && this.enPassant == toCol)
+                    move = [{ from, to }, 'enPassant']
+                else if (parseInt(from[1]) == 5 && this.board[fromRow][fromCol] == 'P' && this.enPassant == toCol)
+                    move = [{ from, to }, 'enPassant']
             }
             if (parseInt(to[1]) == 8 && this.board[fromRow][fromCol] == 'P') {
                 this.getPromotion(from, to);
@@ -485,44 +483,73 @@ class Game {
         return ""
     }
 
-    pushMove(move) {
+    pushMove(move, promotion, isCheck) {
         if (move == '0-0' || move == '0-0-0') {
             this.moves.push(move)
-            console.log(this.moves)
             return;
         }
         const coords = this.getCoords(move)
         const pieceMoved = this.board[coords.from[0]][coords.from[1]].toUpperCase()
         const destinationPiece = this.board[coords.to[0]][coords.to[1]]
         let moveMade = ""
-        if (pieceMoved != 'P')
+        if (pieceMoved != 'P') {
             moveMade += pieceMoved
+        }
+        else {
+            if (promotion) {
+                if (promotion == 'enPassant') {
+                    moveMade += move.from[0]
+                    moveMade += 'x'
+                }
+            }
+        }
         const desambiguation = this.getDisambiguation(coords)
-        if (desambiguation)
+        if (desambiguation) {
             moveMade += desambiguation
-        if (destinationPiece != '.')
+        }
+        if (destinationPiece != '.'){
             moveMade += 'x'
+        }
         moveMade += move.to
+
+        if (pieceMoved == 'P') {
+            if (promotion) {
+                if (promotion == 'enPassant') {
+                    moveMade += ' e.p.'
+                }
+                else{
+                    moveMade += '='
+                    moveMade += promotion
+                }
+            }
+        }
+        if (isCheck)
+            moveMade += '+'
         this.moves.push(moveMade)
-        console.log(this.moves)
     }
 
     acceptMove() {
         this.socket.on('move', (move) => {
+            let movestr = ""
+            let num = 1;
+            console.log(this.getmoves())
+            for (let i = 0; i < this.getmoves().length; i++) {
+                movestr += `${num}. ${this.getmoves()[i++]} ${this.getmoves()[i]} `
+                num++;
+            }
+            console.log(movestr)
             if (Array.isArray(move)) {
-                console.log(move)
-
                 //promotion
                 if (move[1].hasOwnProperty('promotion')) {
-                    this.pushMove({ from: move[0].from, to: move[0].to })
                     this.applyMove(move[0])
+                    this.pushMove({ from: move[0].from, to: move[0].to }, move[1].promotion, this.isCheck())
                     const toRow = 8 - parseInt(move[0].to[1]);
                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
                     this.board[toRow][toCol] = move[1].promotion
                 }
                 //enpassant
-                else if(move[1] == 'enPassant'){
-                    this.pushMove({ from: move[0].from, to: move[0].to })
+                else if (move[1] == 'enPassant') {
+                    this.pushMove({ from: move[0].from, to: move[0].to }, move[1], this.isCheck())
                     this.applyMove(move[0])
                     const toRow = 8 - parseInt(move[0].to[1]);
                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
@@ -537,9 +564,9 @@ class Game {
                             this.checkCheckmate()
                     }
                     if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 2)
-                        this.pushMove('0-0')
+                        this.pushMove('0-0', undefined, this.isCheck())
                     else
-                        this.pushMove('0-0-0')
+                        this.pushMove('0-0-0', undefined, this.isCheck())
                 }
                 this.turn = !this.turn
                 if (this.turn)
@@ -551,14 +578,14 @@ class Game {
             }
             //rest of the moves
             else {
-                if(move.from[1] == '2' && move.to[1] == '4')
+                if (move.from[1] == '2' && move.to[1] == '4')
                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
-                else if(move.from[1] == '7' && move.to[1] == '5')
+                else if (move.from[1] == '7' && move.to[1] == '5')
                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
                 else
                     this.enPassant = 0;
 
-                this.pushMove(move)
+                this.pushMove(move, undefined, this.isCheck())
                 this.applyMove(move)
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
                 this.turn = !this.turn
@@ -566,27 +593,28 @@ class Game {
                     this.startTimer = Date.now()
                 this.totalmoves++
                 this.tempmove = this.totalmoves
-                if (this.isCheck()) 
-                    this.checkCheckmate()
-                else
-                    this.checkStalemate()
             }
+            if (this.isCheck())
+                this.checkCheckmate()
+            else
+                this.checkStalemate()
         })
     }
 
     checkStalemate() {
-        for(let i = 0; i < 8; i++){
-            for(let j = 0; j < 8; j++){
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
                 const from = String.fromCharCode(97 + j) + (8 - i)
-                const moves = getValidMoves(from)
-                if(moves.length > 0)
+                const moves = this.getValidMoves(from)
+                if (moves.length > 0)
                     return false
             }
         }
         alert("Stalemate! It's a draw")
+        this.endGame()
         return true
     }
-    
+
     isCheck() {
         let kingRow, kingCol
         for (let i = 0; i < 8; i++) {
@@ -679,7 +707,6 @@ class Game {
             removeGame()
             console.log("Game Over")
             this.socket.disconnect()
-
         })
     }
 
