@@ -1,5 +1,5 @@
 import { removeGame } from "../gamemanager";
-
+import uploadGame from "../uploadgame";
 class Game {
     constructor(socket, code, isWhite, name, id, opponentName, opponentId) {
         this.socket = socket;
@@ -473,6 +473,7 @@ class Game {
                         }
                         if (k > 1)
                             return 8 - coords.from[0]
+                        //for a knight(not sure)
                         let out = String.fromCharCode(97 + coords.from[1])
                         out += 8 - coords.from[0]
                         return out
@@ -507,7 +508,7 @@ class Game {
         if (desambiguation) {
             moveMade += desambiguation
         }
-        if (destinationPiece != '.'){
+        if (destinationPiece != '.') {
             moveMade += 'x'
         }
         moveMade += move.to
@@ -517,7 +518,7 @@ class Game {
                 if (promotion == 'enPassant') {
                     moveMade += ' e.p.'
                 }
-                else{
+                else {
                     moveMade += '='
                     moveMade += promotion
                 }
@@ -711,10 +712,20 @@ class Game {
     }
 
     endGame() {
-        uploadgame(this.moves, this.code)
+        let pgns = ""
+        for(let i = 0; i < this.moves.length; i++) {
+            pgns += `${i + 1}. ${this.moves[i]} `
+        }
+        uploadGame({
+            pgn: pgns,
+            creation: new Date(),
+            winner: { id: this.opponentId, name: this.opponentName },
+            game_id: this.code,
+            players: [{ id: this.id, name: this.name }, { id: this.opponentId, name: this.opponentName }]
+        })
         this.socket.emit('endGame', this.code)
     }
 
 }
 
-export default Game;
+export default Game

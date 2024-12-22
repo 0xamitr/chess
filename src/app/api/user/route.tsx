@@ -16,7 +16,6 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   await dbConnect();
-
   try {
     const body = await req.json();
     const data = {

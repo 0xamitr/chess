@@ -20,6 +20,19 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
+    games:{
+        type: [
+            {
+                winner: {
+                    type: String,
+                },
+                creation: {
+                    type: Date,
+                    default: Date.now,
+                },
+            },
+        ],
+    },
     elo: Number
 })
 
