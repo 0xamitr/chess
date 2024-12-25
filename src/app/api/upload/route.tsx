@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     const game = await GameS.create({
         players: body.players,
         creation: body.creation,
+        moves: body.moves,
         winner: body.winner,
         pgn: body.pgn,
         game_id: body.game_id
@@ -25,10 +26,10 @@ export async function POST(req: Request) {
 
     console.log("winner", winner);
     if (winner) {
-        await User.findByIdAndUpdate(body.winner.id, { games: [...winner.games, { _id: game._id, winner: winner._id, creation: game.creation }] })
+        await User.findByIdAndUpdate(body.winner.id, { games: [...winner.games, { _id: game._id, winner: winner._id, creation: game.creation, moves: game.moves }] })
     }
     if (loser) {
-        await User.findByIdAndUpdate(body.players.filter((player: any) => player.id !== body.winner.id)[0].id, { games: [...loser.games, { _id: game._id, winner: winner._id, creation: game.creation }] })
+        await User.findByIdAndUpdate(body.players.filter((player: any) => player.id !== body.winner.id)[0].id, { games: [...loser.games, { _id: game._id, winner: winner._id, creation: game.creation, moves: game.moves }] })
     }
 
     return NextResponse.json({ success: false }, { status: 200 });

@@ -10,6 +10,9 @@ const GameSchema = new mongoose.Schema({
                 name: {
                     type: String,
                 },
+                color:{
+                    type: String,
+                }
             },
         ],
         required: true,
@@ -19,6 +22,7 @@ const GameSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
+    moves: Number,
     winner: {
         type: {
             id: {
@@ -27,6 +31,9 @@ const GameSchema = new mongoose.Schema({
             name: {
                 type: String,
             },
+            color: {
+                type: String,
+            }
         },
         required: true,
     },

@@ -32,6 +32,7 @@ export default function Profile(){
                     <div className={styles.game} key={game._id}>
                         <p>{x++}.</p>
                         {game.winner == session.data.user.id ? <p>Win</p> : <p>Loss</p>}
+                        <p>{game.moves} Moves</p>
                         <p>Creation: {game.creation}</p>
                     </div>
                 ))

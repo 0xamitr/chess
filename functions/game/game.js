@@ -719,9 +719,10 @@ class Game {
         uploadGame({
             pgn: pgns,
             creation: new Date(),
-            winner: { id: this.opponentId, name: this.opponentName },
+            moves: this.moves.length,
+            winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite? "black":"white" },
             game_id: this.code,
-            players: [{ id: this.id, name: this.name }, { id: this.opponentId, name: this.opponentName }]
+            players: [{ id: this.id, name: this.name, color: this.isWhite? "white":"black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite? "black":"white" }]
         })
         this.socket.emit('endGame', this.code)
     }

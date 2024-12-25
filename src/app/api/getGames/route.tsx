@@ -10,5 +10,6 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const user = await User.findById(id);
     console.log(user)
+    console.log(user.games)
     return NextResponse.json(user.games);
 }
