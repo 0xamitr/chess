@@ -19,6 +19,7 @@ export async function POST(req: Request) {
         moves: body.moves,
         winner: body.winner,
         pgn: body.pgn,
+        movelist: body.movelist,
         game_id: body.game_id
     });
     const winner = await User.findById(body.winner.id);

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import styles from "./page.module.css";
@@ -29,12 +30,12 @@ export default function Profile(){
             </div>
             {
                 session.data && session.data.user && games && games.map((game: any) => (
-                    <div className={styles.game} key={game._id}>
+                    <Link href={game._id} className={styles.game} key={game._id}>
                         <p>{x++}.</p>
                         {game.winner == session.data.user.id ? <p>Win</p> : <p>Loss</p>}
                         <p>{game.moves} Moves</p>
                         <p>Creation: {game.creation}</p>
-                    </div>
+                    </Link>
                 ))
             }
         </div>

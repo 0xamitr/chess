@@ -22,6 +22,19 @@ const GameSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
+    movelist: {
+        type: [
+            {
+                from: {
+                    type: String,
+                },
+                to: {
+                    type: String,
+                },
+            },
+        ],
+        required: true,
+    },
     moves: Number,
     winner: {
         type: {

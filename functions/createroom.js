@@ -21,7 +21,7 @@ export default function createRoom(e, setSocket, name, id, getPromotion) {
             index = 1
         else
             index = 0
-        setGame(new Game(socket, code, false, name, id, names[index], userIds[index], getPromotion));
+        setGame(new Game(socket, code, false, name, id, names[index], userIds[index], true, null));
         setSocket(socket);
     });
     return code

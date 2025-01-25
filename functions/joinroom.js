@@ -30,7 +30,7 @@ export default function joinRoom(e, setSocket, name, id, showPopup, getPromotion
             index = 1
         else
             index = 0
-        setGame(new Game(socket, val, true, name, id, names[index], userIds[index], getPromotion));
+        setGame(new Game(socket, val, true, name, id, names[index], userIds[index], true, null));
         setSocket(socket);
     });
 }
