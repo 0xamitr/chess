@@ -3,6 +3,7 @@ import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
 
 export default function ChessBoard({ color1, color2, boardState, setboardState, onMove, isWhite, game }) {
+    console.log(isWhite, " fdsf")
     const boardRef = useRef([]); // Array to store refs for each cell
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);
@@ -10,6 +11,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     const [time, setTime] = useState(null)
     const [fromto, setFromto] = useState(null)
 
+    
     // Initialize refs dynamically for an 8x8 chessboard
     const initializeRefs = () => {
         for (let i = 0; i < 8; i++) {
@@ -50,7 +52,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             toRow = 8 - parseInt(fromto.to[1]);
             toCol = fromto.to.charCodeAt(0) - 'a'.charCodeAt(0);
         }
-        else{
+        else {
             toRow = parseInt(fromto.to[1]) - 1;
             toCol = 'h'.charCodeAt(0) - fromto.to.charCodeAt(0);
         }
@@ -67,7 +69,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             toRow = 8 - parseInt(to[1]);
             toCol = to.charCodeAt(0) - 'a'.charCodeAt(0);
         }
-        else{
+        else {
             toRow = parseInt(to[1]) - 1;
             toCol = 'h'.charCodeAt(0) - to.charCodeAt(0);
         }
@@ -86,6 +88,10 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                     clearInterval(interval);
                 }
             }, 1000);
+            if (game.isWhite)
+                setboardState(game.history[game.tempmove])
+            else
+                setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
         }
     }, [game])
 
@@ -97,13 +103,15 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     };
 
     const handleSquareClick = (e, i, j) => {
-        if (game.isWhite) {
-            game.tempmove = game.totalmoves
-            setboardState(game.history[game.tempmove])
-        }
-        else {
-            game.tempmove = game.totalmoves
-            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+        if (game.live) {
+            if (game.isWhite) {
+                game.tempmove = game.totalmoves
+                setboardState(game.history[game.tempmove])
+            }
+            else {
+                game.tempmove = game.totalmoves
+                setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+            }
         }
         // Adjust coordinates for black's perspective
         let adjustedI = isWhite ? i : 7 - i;
@@ -150,6 +158,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             if (!game)
                 return
 
+            console.log("game", game)
             const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
             // Adjust valid moves for the black perspective
             setValidMoves(

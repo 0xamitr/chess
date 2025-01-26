@@ -5,6 +5,10 @@ class Game {
         this.movelist = []
         this.live = live
         this.moves = [];
+        this.opponentName = opponentName
+        this.opponentId = opponentId
+        this.name = name;
+        this.id = id
         if(this.live){
             this.socket = socket;
             this.time = 600;
@@ -16,15 +20,31 @@ class Game {
             this.listenEndGame();
         }
         this.totalmoves = 0;
-
+        this.tempmove = 0;
         this.turn = isWhite;
         this.board = this.initializeBoard();
         this.history = [JSON.parse(JSON.stringify(this.board))];
         console.log("live", this.live)
         if(!this.live){
+            let color = "white"
+            if(!isWhite)
+                color = "black"
+            if(offgame.players[0].color == color){
+                this.name = offgame.players[0].name
+                this.id = offgame.players[0].id
+                this.opponentId = offgame.players[1].id
+                this.opponentName = offgame.players[1].name
+            }
+            else{
+                this.name = offgame.players[1].name
+                this.id = offgame.players[1].id
+                this.opponentId = offgame.players[0].id
+                this.opponentName = offgame.players[0].name
+            }
             console.log("offgame", offgame)
             console.log("movelist", offgame.movelist)
             this.totalmoves = offgame.moves
+            this.tempmove = offgame.moves
             for(let i = 0; i < offgame.movelist.length; i++) {
                 this.applyMove({ from: offgame.movelist[i].from, to: offgame.movelist[i].to });
                 this.turn = !this.turn
@@ -35,11 +55,6 @@ class Game {
         this.onMove = null;
         this.isWhite = isWhite;
         this.check = false;
-        this.tempmove = 0;
-        this.name = name;
-        this.id = id
-        this.opponentName = opponentName
-        this.opponentId = opponentId
         this.kingMove = false
         this.leftrookMove = false
         this.rightrookMove = false
