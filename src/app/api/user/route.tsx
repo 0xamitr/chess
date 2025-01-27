@@ -7,7 +7,12 @@ export async function GET(req: Request) {
   await dbConnect();
 
   try {
-    const users = await User.find();
+    const url = new URL(req.url);
+    const query = url.searchParams; 
+
+    const param = query.get('username');
+
+    const users = await User.find({name: param});
     return NextResponse.json({ success: true, data: users }, { status: 200 });
   } catch (error:any) {
     console.error('Error fetching users:', error);

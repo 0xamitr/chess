@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import styles from "./page.module.css";
+import AddFriend from "../../../components/addFriend/addFriend";
+
 export default function Profile(){
     const [games, setGames] = useState([])
     const session = useSession()
@@ -38,6 +40,8 @@ export default function Profile(){
                     </Link>
                 ))
             }
+
+            <AddFriend />
         </div>
     )
 }

@@ -20,6 +20,18 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
+    pendingfriends:{
+        type: [
+            {
+                id: {
+                    type: String,
+                },
+                name: {
+                    type: String,
+                },
+            }
+        ]
+    },
     games:{
         type: [
             {
