@@ -1,59 +1,54 @@
-import { useState } from "react";
-import CustomForm from "../Form/form";
-import CustomInput from "../Input/input";
+import { get } from "http";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
-export default function AddFriend(){
+export default function addFriend() {
+    const [friendRequests, setFriendRequests] = useState<any | null>([]);
     const session = useSession()
-    const [friend, setFriend] = useState<[string, string, string]>(["", "", ""]);
-    const findFriend = (e: React.FormEvent<HTMLFormElement>): void => {
-        e.preventDefault()
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const username = formData.get('username');
-        
-        fetch(`/api/user?username=${username}`, {
-            method: 'GET',
-        }).then((response)=>{
-            return response.json()
-        }).then((data)=>{
-            console.log(data.data[0])
-            if(session && session.data && session.data.user )
-                setFriend([data.data[0]._id, session.data.user.name, session.data.user.id] as [string, string, string])
-            else
-                throw new Error("Session does not exist")
-        }).catch((error)=>{
-            console.log(error)
-            throw new Error("user does not exist")
-        })
+    const getFriendRequests = () => {
+        if (session && session.data && session.data.user) {
+            fetch(`/api/getFriendRequests?id=${session.data.user.id}`)
+                .then(response => response.json())
+                .then(data => {
+                    setFriendRequests(data.data);
+                    console.log(data.data)
+                })
+                .catch(error => console.log(error))
+        }
     }
-    const addFriend = (): void => {
-        fetch('/api/addfriend', {
-            method: 'POST',
-            body: JSON.stringify(friend)
-        }).then((response)=>{
-            return response.json()
-        }).then((data)=>{
-            console.log(data)
-        }).catch((error)=>{
-            console.log(error)
-        })
+    useEffect(() => {
+        if (session)
+            getFriendRequests()
+    }, [session])
+
+    const acceptFriendRequest = (friendId: String): void => {
+        if (session && session.data && session.data.user) {
+            console.log("friendid", friendId)
+            fetch(`/api/acceptFriendRequest?id=${session.data.user.id}&friendId=${friendId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                })
+                .catch(error => console.log(error))
+        }
     }
-    return(
-        <>
-            <CustomForm onSubmit={findFriend}>
-            <h2>Add Friend</h2>
-            <CustomInput 
-                inputheading="Username"
-                type="text"
-                name="username"
-                required="required"
-                minLength={4} 
-                maxLength={20}
-            />
-            <input type='submit' />
-            {friend[0] && <button onClick={() => addFriend()}>Add Friend</button>}
-        </CustomForm >
-        </>
+
+    const addFriend = (id: String): void => {
+        acceptFriendRequest(id)
+        console.log("Friend added");
+    }
+    return (
+        <div>
+            <h1>Add Friend</h1>
+            <div>
+                {friendRequests && friendRequests.map((friend: any, i: number) => (
+                    <div key={i}>
+                        <p>{friend.name}</p>
+                        <button onClick={() => addFriend(friend.id)}>Add Friend</button>
+                    </div>
+                ))}
+            </div>
+        </div>
     )
+
 }
