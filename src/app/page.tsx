@@ -7,6 +7,9 @@ import joinRoom from "../../functions/joinroom";
 import { getGame } from "../../functions/gamemanager";
 import { useSession } from "next-auth/react";
 import { usePopup } from '../../components/context/PopupContext';
+import { io } from "socket.io-client";
+import {getSocket} from "../../functions/socket";
+import Challenges from "../../components/challenges/challenges";
 
 export default function Home() {
   const { showPopup } = usePopup();
@@ -49,6 +52,7 @@ export default function Home() {
   };
 
   const onMove = (from: string, to: string) => {
+    const game = getGame()
     if (game) {
       const moveMade = game.makeMove(from, to);
       if (moveMade) {
@@ -94,10 +98,17 @@ export default function Home() {
     }
   }, [socket, isWhite]); // Added isWhite as a dependency
 
+  useEffect(() => {
+    if(session && session.data && session.data.user){
+      console.log("yo wtf")
+      getSocket(session.data.user.id)
+    }
+  }, [session])
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={game} />
+      <Challenges />
+      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} />
       <div className={styles.side}>
         {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>

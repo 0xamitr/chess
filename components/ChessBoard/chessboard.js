@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
+import { getGame } from '../../functions/gamemanager';
 
-export default function ChessBoard({ color1, color2, boardState, setboardState, onMove, isWhite, game }) {
-    console.log(isWhite, " fdsf")
+export default function ChessBoard({ color1, color2, boardState, setboardState, onMove }) {
+    const game = getGame()
+    let isWhite
+    if(game)
+        isWhite = game.isWhite
+    else
+        isWhite = true
+
     const boardRef = useRef([]); // Array to store refs for each cell
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);

@@ -5,7 +5,7 @@ import ChessBoard from "../../../components/ChessBoard/chessboard"
 import Game from "../../../functions/game/game";
 import styles from "./page.module.css";
 import { useSession } from "next-auth/react";
-import { set } from "mongoose";
+import { setGame } from "../../../functions/gamemanager";
 
 export default function GameAnalysis() {
     const [isWhite, setIsWhite] = useState<boolean | null>(true);
@@ -53,10 +53,9 @@ export default function GameAnalysis() {
                             iswhite = false
                     }
                     setIsWhite(iswhite)
-                    const g = new Game(null, null, iswhite, "name", "id", "names[index]", "userIds[index]", false, data)
-                    console.log(g)
-                    
+                    const g = new Game(null, null, iswhite, "", "", "", "", false, data)
                     setOffgame(g)
+                    setGame(g)
                     if (isWhite) {
                         setBoardState([...g.board.map((row: string[]) => [...row])]); // Ensure deep copy of the board
                         return true
@@ -74,7 +73,7 @@ export default function GameAnalysis() {
             <h1>Game Analysis</h1>
             <div className={styles.home}>
                 {
-                    offgame && <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite} game={offgame} />
+                    offgame && <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite}  />
                 }
             </div>
         </div>
