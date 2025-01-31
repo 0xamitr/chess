@@ -15,26 +15,13 @@ export default function Home() {
   const { showPopup } = usePopup();
   const session = useSession()
   const [code, setCode] = useState<Number>();
-  const [socket, setSocket] = useState<any | null>(null);
-  const [game, setGame] = useState<any | null>(null);
-  const [isWhite, setIsWhite] = useState<boolean | null>(true);
-  const [boardState, setBoardState] = useState([
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-  ]);
 
   const handleJoinRoom = (e: any) => {
     console.log("Joining room...");
     if (session.data && session.data.user)
-      joinRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id, showPopup);
+      joinRoom(e, session.data.user.name, (session.data.user as { id: string }).id, showPopup);
     else
-      joinRoom(e, setSocket, 'anonymous', null, showPopup);
+      joinRoom(e, 'anonymous', null, showPopup);
   };
 
   const handleCreateRoom = (e: any) => {
@@ -42,73 +29,26 @@ export default function Home() {
     try {
       let roomCode
       if (session.data && session.data.user)
-        roomCode = createRoom(e, setSocket, session.data.user.name, (session.data.user as { id: string }).id);
+        roomCode = createRoom(e, session.data.user.name, (session.data.user as { id: string }).id);
       else
-        roomCode = createRoom(e, setSocket, 'anonymous', null);
+        roomCode = createRoom(e, 'anonymous', null);
       setCode(roomCode);
     } catch (error) {
       console.error("Failed to create room:", error);
     }
   };
 
-  const onMove = (from: string, to: string) => {
-    const game = getGame()
-    if (game) {
-      const moveMade = game.makeMove(from, to);
-      if (moveMade) {
-        if (isWhite) {
-          setBoardState([...game.board.map((row: string[]) => [...row])]); // Ensure deep copy of the board
-          return true
-        } else {
-          setBoardState(
-            [...game.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black side
-          );
-          return true
-        }
-      } else {
-        return false;
-      }
-    }
-    else
-      return false
-  };
-
-
-  useEffect(() => {
-    if (socket) {
-      const gameInstance = getGame();
-      setIsWhite(gameInstance.isWhite);
-      setGame(gameInstance);
-      if (isWhite) {
-        setBoardState([...gameInstance.board.map((row: string[]) => [...row])]); // Deep copy
-      } else {
-        setBoardState(
-          [...gameInstance.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black
-        );
-      }
-      socket.on('move', () => {
-        if (isWhite) {
-          setBoardState([...gameInstance.board.map((row: string[]) => [...row])]); // Deep copy
-        } else {
-          setBoardState(
-            [...gameInstance.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black
-          );
-        }
-      });
-    }
-  }, [socket, isWhite]); // Added isWhite as a dependency
-
   useEffect(() => {
     if(session && session.data && session.data.user){
       console.log("yo wtf")
-      getSocket(session.data.user.id)
+      getSocket(session.data.user)
     }
   }, [session])
 
   return (
     <div className={styles.home}>
       <Challenges />
-      <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} />
+      <ChessBoard color1={'grey'} color2={'white'}/>
       <div className={styles.side}>
         {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>

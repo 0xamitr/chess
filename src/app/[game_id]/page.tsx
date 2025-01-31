@@ -73,7 +73,7 @@ export default function GameAnalysis() {
             <h1>Game Analysis</h1>
             <div className={styles.home}>
                 {
-                    offgame && <ChessBoard color1={'grey'} color2={'white'} boardState={boardState} setboardState={setBoardState} onMove={onMove} isWhite={isWhite}  />
+                    offgame && <ChessBoard color1={'grey'} color2={'white'} />
                 }
             </div>
         </div>

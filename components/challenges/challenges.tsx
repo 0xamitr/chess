@@ -9,7 +9,7 @@ export default function Challenges() {
     const [challenge, setChallenge] = useState<String | null>(null)
     useEffect(() => {
         if (session && session.data && session.data.user) {
-            const socket = getSocket(session.data.user.id)
+            const socket = getSocket(session.data.user)
             socket.on('challenge-received', (fromId: String) => {
                 console.log("Challenge received from", fromId)
                 setChallenge(fromId)
@@ -23,8 +23,8 @@ export default function Challenges() {
                 <div className={styles.challenge}>
                     <p>New Challenge</p>
                     <button onClick={()=>{
-                        console.log("socket", getSocket(session.data?.user.id))
-                        getSocket(session.data?.user.id).emit('challenge-accepted', challenge)
+                        console.log("socket", getSocket(session.data?.user))
+                        getSocket(session.data?.user).emit('challenge-accepted', challenge)
                         setChallenge(null)
                     }}>
                         Accept

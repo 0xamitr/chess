@@ -23,16 +23,7 @@ const GameSchema = new mongoose.Schema({
         default: Date.now,
     },
     movelist: {
-        type: [
-            {
-                from: {
-                    type: String,
-                },
-                to: {
-                    type: String,
-                },
-            },
-        ],
+        type: mongoose.Schema.Types.Mixed, // Allows any type
         required: true,
     },
     moves: Number,

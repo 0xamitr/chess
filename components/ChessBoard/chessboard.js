@@ -1,12 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
-import { getGame } from '../../functions/gamemanager';
+import { getGame, setGame } from '../../functions/gamemanager';
+import { getSocket } from '../../functions/socket';
 
-export default function ChessBoard({ color1, color2, boardState, setboardState, onMove }) {
+export default function ChessBoard({ color1, color2 }) {
     const game = getGame()
+    // const socket = getSocket()
+    const [boardstate, setBoardState] = useState([
+        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+        ['.', '.', '.', '.', '.', '.', '.', '.'],
+        ['.', '.', '.', '.', '.', '.', '.', '.'],
+        ['.', '.', '.', '.', '.', '.', '.', '.'],
+        ['.', '.', '.', '.', '.', '.', '.', '.'],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+    ]);
+
+    const onMove = (from, to) => {
+        const game = getGame()
+        if (game) {
+            const moveMade = game.makeMove(from, to);
+            if (moveMade) {
+                if (game.isWhite) {
+                    console.log("for what it is worth")
+                    setBoardState([...game.board.map((row) => [...row])]); // Ensure deep copy of the board
+                    return true
+                } else {
+                    setBoardState(
+                        [...game.board.map((row) => [...row].reverse())].reverse() // Reverse for black side
+                    );
+                    return true
+                }
+            } else {
+                return false;
+            }
+        }
+        else
+            return false
+    };
+
+
+    useEffect(() => {
+        if (game) {
+            if (game.isWhite) {
+                setBoardState([...game.board.map((row) => [...row])]); // Deep copy
+            } else {
+                setBoardState(
+                    [...game.board.map((row) => [...row].reverse())].reverse() // Reverse for black
+                );
+            }
+            if (game.live) {
+                game.socket.on('move', () => {
+                    if (game.isWhite) {
+                        setBoardState([...game.board.map((row) => [...row])]); // Deep copy
+                    } else {
+                        setBoardState(
+                            [...game.board.map((row) => [...row].reverse())].reverse() // Reverse for black
+                        );
+                    }
+                });
+            }
+        }
+    }, [game]);
+
     let isWhite
-    if(game)
+    if (game)
         isWhite = game.isWhite
     else
         isWhite = true
@@ -18,7 +78,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
     const [time, setTime] = useState(null)
     const [fromto, setFromto] = useState(null)
 
-    
+
     // Initialize refs dynamically for an 8x8 chessboard
     const initializeRefs = () => {
         for (let i = 0; i < 8; i++) {
@@ -96,9 +156,9 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
                 }
             }, 1000);
             if (game.isWhite)
-                setboardState(game.history[game.tempmove])
+                setBoardState(game.history[game.tempmove])
             else
-                setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+                setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
         }
     }, [game])
 
@@ -113,11 +173,11 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
         if (game.live) {
             if (game.isWhite) {
                 game.tempmove = game.totalmoves
-                setboardState(game.history[game.tempmove])
+                setBoardState(game.history[game.tempmove])
             }
             else {
                 game.tempmove = game.totalmoves
-                setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+                setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
             }
         }
         // Adjust coordinates for black's perspective
@@ -126,7 +186,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
 
         if (selectedPiece) {
             if (!game) {
-                setSelectedPiece(boardState[i][j])
+                setSelectedPiece(boardstate[i][j])
                 setSelectedPosition({ i: i, j: j });
                 return
             }
@@ -139,7 +199,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
 
             let to = String.fromCharCode(97 + adjustedJ) + (8 - adjustedI);
             if (!onMove(from, to)) {
-                setSelectedPiece(boardState[i][j])
+                setSelectedPiece(boardstate[i][j])
                 setSelectedPosition({ i: i, j: j });
                 const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
                 setValidMoves(
@@ -160,7 +220,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
             // Selecting a piece, so adjust the coordinates for black's perspective
 
             // Set the selected piece and its position
-            setSelectedPiece(boardState[i][j])
+            setSelectedPiece(boardstate[i][j])
             setSelectedPosition({ i: i, j: j });
             if (!game)
                 return
@@ -183,24 +243,23 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
         if (game.tempmove > 0)
             game.tempmove--
         if (game.isWhite)
-            setboardState(game.history[game.tempmove])
+            setBoardState(game.history[game.tempmove])
         else
-            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
-
-
+            setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
     }
+    
     const handleGofront = () => {
         if (game.tempmove < game.totalmoves)
             game.tempmove++
         if (game.isWhite)
-            setboardState(game.history[game.tempmove])
+            setBoardState(game.history[game.tempmove])
         else
-            setboardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+            setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
     }
 
 
     // const handleOnMouseDown = (e, i, j) => {
-    //     setSelectedPiece(boardState[i][j])
+    //     setSelectedPiece(boardstate[i][j])
     //     setSelectedPosition({ i: i, j: j });
 
     //     const moves = game.getValidMoves(String.fromCharCode(97 + 7 - j) + (8 - 7 + i));
@@ -271,7 +330,7 @@ export default function ChessBoard({ color1, color2, boardState, setboardState, 
         <div>
             <h2>{game && game.opponentName}</h2>
             <div id='chessboard' className={`${styles.chessboard} ${isWhite !== false ? "" : styles.rotated}`}>
-                {boardState.map((row, i) => (
+                {boardstate.map((row, i) => (
                     <div className={styles.row} key={i}>
                         {row.map((piece, j) => (
                             <div
