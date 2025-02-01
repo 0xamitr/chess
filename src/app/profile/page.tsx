@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import styles from "./page.module.css";
-import SendFriendRequest from "../../../components/sendFriendRequest/sendFriendRequest";
 import AddFriend from "../../../components/addFriend/addFriend";
 import Friends from "../../../components/friends/friends";
 
@@ -13,7 +12,6 @@ export default function Profile() {
     const session = useSession()
     useEffect(() => {
         if (session.data && session.data.user) {
-            console.log("u9")
             fetch(`/api/getGames?id=${session.data.user.id}`, {
                 method: 'GET',
             })

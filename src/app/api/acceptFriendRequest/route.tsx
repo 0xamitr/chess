@@ -12,6 +12,16 @@ export async function GET(req: NextRequest){
 
     if(!user || !friend)
         return NextResponse.json({ success: false, data: "User does not exist" }, { status: 404 });
+
+    for (const friend of user.friends) {
+        if (friend.id == friendId) {
+            return NextResponse.json({ success: false, data: "You are already friends" }, { status: 400 });
+        }
+    }
+    for (const f of friend.friends) {
+        if (f.id == id)
+            return NextResponse.json({ success: false, data: "You are already friends" }, { status: 400 });
+    }
     
     await User.findByIdAndUpdate(id, {friends: [...user.friends, {id: friend._id, name: friend.name}], pendingfriends: user.pendingfriends.filter((pendingfriend: any) => pendingfriend.id !== friendId)});
 
