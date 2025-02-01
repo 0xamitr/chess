@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import styles from "./addFriend.module.css";
 
-export default function addFriend() {
+export default function AddFriend() {
     const [friendRequests, setFriendRequests] = useState<any | null>([]);
     const session = useSession()
     const getFriendRequests = () => {
