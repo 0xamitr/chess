@@ -26,10 +26,8 @@ export default  function SignIn(){
                 email: email,
                 password: password
             })
-            if(response?.ok){
-                console.log('success')
+            if(response?.ok)
                 router.push('/')
-            }
         }
         catch(error){
             console.log(error)

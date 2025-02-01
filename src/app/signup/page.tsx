@@ -2,17 +2,18 @@
 import CustomForm from '../../../components/Form/form'
 import CustomInput from '../../../components/Input/input'
 import { signOut } from 'next-auth/react'
-
+import { useRouter } from 'next/navigation'
 export default  function SignUp(){
+    const router = useRouter()
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
+        e.stopPropagation()
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
         
         const name = formData.get('username');
         const email = formData.get('email');
         const password = formData.get('password');
-        console.log(email);
 
         const response = await fetch('/api/user', {
             method: 'POST',
@@ -25,6 +26,8 @@ export default  function SignUp(){
                 'Content-Type': 'application/json'
             }
         })
+        if(response.ok)
+            router.push('/signin')
     }
     return(
         <CustomForm onSubmit={handleSubmit}>

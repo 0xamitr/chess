@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
-import { getGame, setGame } from '../../functions/gamemanager';
-import { getSocket } from '../../functions/socket';
+import { getGame } from '../../functions/gamemanager';
+import { usePathname } from 'next/navigation';
 
 export default function ChessBoard({ color1, color2 }) {
+    const pathname = usePathname();
+    // Reset the game state when the route changes
     const game = getGame()
-    // const socket = getSocket()
     const [boardstate, setBoardState] = useState([
         ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
         ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -18,13 +19,30 @@ export default function ChessBoard({ color1, color2 }) {
         ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
     ]);
 
+    useEffect(() => {
+        const resetGameState = () => {
+          setBoardState([
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+          ]);
+        };
+    
+        resetGameState();
+    
+      }, [pathname]);
+    
     const onMove = (from, to) => {
         const game = getGame()
         if (game) {
             const moveMade = game.makeMove(from, to);
             if (moveMade) {
                 if (game.isWhite) {
-                    console.log("for what it is worth")
                     setBoardState([...game.board.map((row) => [...row])]); // Ensure deep copy of the board
                     return true
                 } else {
@@ -247,7 +265,7 @@ export default function ChessBoard({ color1, color2 }) {
         else
             setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
     }
-    
+
     const handleGofront = () => {
         if (game.tempmove < game.totalmoves)
             game.tempmove++

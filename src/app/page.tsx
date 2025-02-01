@@ -4,14 +4,13 @@ import styles from "./page.module.css";
 import ChessBoard from "../../components/ChessBoard/chessboard";
 import createRoom from "../../functions/createroom";
 import joinRoom from "../../functions/joinroom";
-import { getGame } from "../../functions/gamemanager";
 import { useSession } from "next-auth/react";
 import { usePopup } from '../../components/context/PopupContext';
-import { io } from "socket.io-client";
-import {getSocket} from "../../functions/socket";
-import Challenges from "../../components/challenges/challenges";
+import { getSocket } from "../../functions/socket";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const { showPopup } = usePopup();
   const session = useSession()
   const [code, setCode] = useState<Number>();
@@ -19,9 +18,9 @@ export default function Home() {
   const handleJoinRoom = (e: any) => {
     console.log("Joining room...");
     if (session.data && session.data.user)
-      joinRoom(e, session.data.user.name, (session.data.user as { id: string }).id, showPopup);
+      joinRoom(e, session.data.user.name, (session.data.user as { id: string }).id);
     else
-      joinRoom(e, 'anonymous', null, showPopup);
+      joinRoom(e, 'anonymous', null);
   };
 
   const handleCreateRoom = (e: any) => {
@@ -39,16 +38,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if(session && session.data && session.data.user){
-      console.log("yo wtf")
-      getSocket(session.data.user)
+    if (session && session.data && session.data.user) {
+      getSocket(session.data.user, showPopup, router)
     }
   }, [session])
 
   return (
     <div className={styles.home}>
-      <Challenges />
-      <ChessBoard color1={'grey'} color2={'white'}/>
+      <ChessBoard color1={'grey'} color2={'white'} />
       <div className={styles.side}>
         {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>

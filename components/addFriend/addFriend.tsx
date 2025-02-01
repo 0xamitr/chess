@@ -1,6 +1,6 @@
-import { get } from "http";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import styles from "./addFriend.module.css";
 
 export default function addFriend() {
     const [friendRequests, setFriendRequests] = useState<any | null>([]);
@@ -38,17 +38,21 @@ export default function addFriend() {
         console.log("Friend added");
     }
     return (
-        <div>
-            <h1>Add Friend</h1>
-            <div>
-                {friendRequests && friendRequests.map((friend: any, i: number) => (
-                    <div key={i}>
-                        <p>{friend.name}</p>
-                        <button onClick={() => addFriend(friend.id)}>Add Friend</button>
+        <>
+            {friendRequests[0] &&
+                <div className={styles.addfriend}>
+                    <h3>Add Friend</h3>
+                    <div>
+                        {friendRequests.map((friend: any, i: number) => (
+                            <div key={i}>
+                                <p>{friend.name}</p>
+                                <button onClick={() => addFriend(friend.id)}>Add Friend</button>
+                            </div>
+                        ))
+                        }
                     </div>
-                ))}
-            </div>
-        </div>
+                </div>
+            }
+        </>
     )
-
 }

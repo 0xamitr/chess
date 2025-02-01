@@ -1,4 +1,9 @@
-.game{
+.game {
     display: flex;
     gap: 20px;
+}
+
+.profile {
+    max-width: 800px;
+    margin: 0 auto;
 }

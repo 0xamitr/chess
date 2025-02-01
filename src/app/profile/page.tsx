@@ -8,42 +8,47 @@ import SendFriendRequest from "../../../components/sendFriendRequest/sendFriendR
 import AddFriend from "../../../components/addFriend/addFriend";
 import Friends from "../../../components/friends/friends";
 
-export default function Profile(){
+export default function Profile() {
     const [games, setGames] = useState([])
     const session = useSession()
     useEffect(() => {
-        if(session.data && session.data.user){
+        if (session.data && session.data.user) {
             console.log("u9")
             fetch(`/api/getGames?id=${session.data.user.id}`, {
                 method: 'GET',
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                setGames(data)
-            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    setGames(data)
+                })
         }
     }, [session])
     let x = 1
-    return(
-        <div>
+    return (
+        <div className={styles.profile}>
             <h1>Profile</h1>
             <div>
                 <p>Username: {session.data && session.data.user && session.data.user.name}</p>
                 <p>Email: {session.data && session.data.user && session.data.user.email}</p>
             </div>
             {
-                session.data && session.data.user && games && games.map((game: any) => (
-                    <Link href={game._id} className={styles.game} key={game._id}>
-                        <p>{x++}.</p>
-                        {game.winner == session.data.user.id ? <p>Win</p> : <p>Loss</p>}
-                        <p>{game.moves} Moves</p>
-                        <p>Creation: {game.creation}</p>
-                    </Link>
-                ))
-            }
-
-            <SendFriendRequest />
+                session.data && session.data.user && games && (
+                    <div className={styles.games}>
+                        <h2>Games</h2>
+                        {games.map((game: any) => (
+                            <Link href={game._id} className={styles.game} key={game._id}>
+                                <p>{x++}.</p>
+                                {game.winner == session?.data?.user.id ? <p>Win</p> : <p>Loss</p>}
+                                <p>{game.moves} Moves</p>
+                                <p>Creation: {game.creation}</p>
+                            </Link>
+                        ))}
+                    </div>
+                )}
+            <div>
+                <Link href="/newfriend">Add Friend</Link>
+            </div>
             <AddFriend />
             <Friends />
         </div>

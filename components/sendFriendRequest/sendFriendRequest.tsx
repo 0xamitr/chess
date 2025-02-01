@@ -2,16 +2,17 @@ import { useState } from "react";
 import CustomForm from "../Form/form";
 import CustomInput from "../Input/input";
 import { useSession } from "next-auth/react";
+import { usePopup } from "../context/PopupContext";
 
 export default function SendFriendRequest(){
     const session = useSession()
+    const { showPopup } = usePopup();
     const [friend, setFriend] = useState<[string, string, string]>(["", "", ""]);
     const findFriend = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault()
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
         const username = formData.get('username');
-        
         fetch(`/api/user?username=${username}`, {
             method: 'GET',
         }).then((response)=>{
@@ -24,26 +25,30 @@ export default function SendFriendRequest(){
                 throw new Error("Session does not exist")
         }).catch((error)=>{
             console.log(error)
-            throw new Error("user does not exist")
+            showPopup("user does not exist", "message", "top-right")
         })
     }
-    const addFriend = (): void => {
-        fetch('/api/sendFriendRequest', {
+    const addFriend = async() => {
+        const response = await fetch('/api/sendFriendRequest', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(friend)
-        }).then((response)=>{
-            return response.json()
-        }).then((data)=>{
-            console.log(data)
-        }).catch((error)=>{
-            console.log(error)
         })
+        const data = await response.json()
+        console.log("eoe", data)
+        if(response.ok)
+            console.log(data)
+        else
+            showPopup(data.data, "message", "top-right")
     }
+    
     return(
         <>
             <CustomForm onSubmit={findFriend}>
             <h2>Add Friend</h2>
-            <CustomInput 
+            <CustomInput
                 inputheading="Username"
                 type="text"
                 name="username"
@@ -52,7 +57,7 @@ export default function SendFriendRequest(){
                 maxLength={20}
             />
             <input type='submit' />
-            {friend[0] && <button onClick={() => addFriend()}>Add Friend</button>}
+            {friend[0] && <button type="button" onClick={() => addFriend()}>Add Friend</button>}
         </CustomForm >
         </>
     )

@@ -1,23 +1,30 @@
+"use client"
+
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { getSocket } from "../../functions/socket";
+import { useRouter } from "next/navigation";
+import { usePopup } from "../context/PopupContext";
+import { Socket } from "socket.io-client";
 
 export default function Friends() {
-    const socket = getSocket()
+    const router = useRouter()
     const session = useSession()
-    const [friends, setFriends] = useState<any | null>([]);
+    const { showPopup } = usePopup()
+    const socketRef = useRef<Socket | null>(null);    const [friends, setFriends] = useState<any | null>([]);
     useEffect(() => {
         if (session.data && session.data.user) {
             fetch(`/api/getFriends?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {
                     console.log(data.data)
+                    socketRef.current = getSocket(session.data.user, showPopup, router)
                     setFriends(data.data);
                 })
                 .catch(error => console.log(error))
         }
     }, [session])
-    
+
     return (
         <div>
             <h1>Friends</h1>
@@ -26,8 +33,8 @@ export default function Friends() {
                     <div key={i}>
                         <p>{friend.name}</p>
                         <button onClick={() => {
-                            console.log("socket", socket)
-                            socket.emit('challenge', friend.id)
+                            if(socketRef.current)
+                                socketRef.current.emit('challenge', friend.id)
                         }}>Challenge</button>
                     </div>
                 ))
