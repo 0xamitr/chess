@@ -9,7 +9,7 @@ class Game {
         this.opponentId = opponentId
         this.name = name;
         this.id = id
-        if(this.live){
+        if (this.live) {
             this.socket = socket;
             this.time = 600;
             this.timer = null;
@@ -25,17 +25,17 @@ class Game {
         this.board = this.initializeBoard();
         this.history = [JSON.parse(JSON.stringify(this.board))];
         console.log("live", this.live)
-        if(!this.live){
+        if (!this.live) {
             let color = "white"
-            if(!isWhite)
+            if (!isWhite)
                 color = "black"
-            if(offgame.players[0].color == color){
+            if (offgame.players[0].color == color) {
                 this.name = offgame.players[0].name
                 this.id = offgame.players[0].id
                 this.opponentId = offgame.players[1].id
                 this.opponentName = offgame.players[1].name
             }
-            else{
+            else {
                 this.name = offgame.players[1].name
                 this.id = offgame.players[1].id
                 this.opponentId = offgame.players[0].id
@@ -45,8 +45,15 @@ class Game {
             console.log("movelist", offgame.movelist)
             this.totalmoves = offgame.moves
             this.tempmove = offgame.moves
-            for(let i = 0; i < offgame.movelist.length; i++) {
-                this.applyMove({ from: offgame.movelist[i].from, to: offgame.movelist[i].to });
+            for (let i = 0; i < offgame.movelist.length; i++) {
+                if (offgame.movelist[i].length > 1) {
+                    for (let j = 0; j < offgame.movelist[i].length; j++) {
+                        this.applyMove({ from: offgame.movelist[i][j].from, to: offgame.movelist[i][j].to });
+
+                    }
+                }
+                else
+                    this.applyMove({ from: offgame.movelist[i].from, to: offgame.movelist[i].to });
                 this.turn = !this.turn
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
             }
@@ -60,7 +67,7 @@ class Game {
         this.rightrookMove = false
         this.enPassant = 0
     }
-      
+
     startTimer() {
         this.starttime = Date.now();
         this.timer = setInterval(() => {
@@ -418,7 +425,7 @@ class Game {
 
         if (this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k') {
             if (fromRow != toRow) {
-                if(this.live)
+                if (this.live)
                     this.socket.emit('move', move, code)
                 this.check = false
                 return true
@@ -429,19 +436,19 @@ class Game {
                         let fromrook = String.fromCharCode(97 + 7) + (1);
                         let torook = String.fromCharCode(97 + 5) + (1);
                         move = [{ from, to }, { from: fromrook, to: torook }]
-                        if(this.live)
+                        if (this.live)
                             this.socket.emit('move', move, code)
                     }
                     else if (fromCol - toCol == 2) {
                         let fromrook = String.fromCharCode(97 + 0) + (1);
                         let torook = String.fromCharCode(97 + 3) + (1);
                         move = [{ from, to }, { from: fromrook, to: torook }]
-                        if(this.live)
+                        if (this.live)
                             this.socket.emit('move', move, code)
                     }
                 }
                 else
-                    if(this.live)
+                    if (this.live)
                         this.socket.emit('move', move, code)
             }
             else {
@@ -450,19 +457,19 @@ class Game {
                         let fromrook = String.fromCharCode(97 + 7) + (8);
                         let torook = String.fromCharCode(97 + 5) + (8);
                         move = [{ from, to }, { from: fromrook, to: torook }]
-                        if(this.live)
+                        if (this.live)
                             this.socket.emit('move', move, code)
                     }
                     else if (fromCol - toCol == 2) {
                         let fromrook = String.fromCharCode(97 + 0) + (8);
                         let torook = String.fromCharCode(97 + 3) + (8);
                         move = [{ from, to }, { from: fromrook, to: torook }]
-                        if(this.live)
+                        if (this.live)
                             this.socket.emit('move', move, code)
                     }
                 }
                 else
-                    if(this.live)
+                    if (this.live)
                         this.socket.emit('move', move, code)
             }
             this.kingMove = true
@@ -481,7 +488,7 @@ class Game {
                 this.getPromotion(from, to);
             }
             else {
-                if(this.live)
+                if (this.live)
                     this.socket.emit('move', move, code)
             }
         }
@@ -526,8 +533,11 @@ class Game {
 
     pushMove(move, promotion, isCheck) {
         this.movelist.push(move)
-        if (move == '0-0' || move == '0-0-0') {
-            this.moves.push(move)
+        if (move.length > 1) {
+            if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 2)
+                this.moves.push('0-0')
+            else if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 3)
+                this.moves.push('0-0-0')
             return;
         }
         const coords = this.getCoords(move)
@@ -571,7 +581,7 @@ class Game {
     }
 
     acceptMove() {
-        if(this.live){
+        if (this.live) {
             this.socket.on('move', (move) => {
                 let movestr = ""
                 let num = 1;
@@ -606,10 +616,7 @@ class Game {
                             if (this.isCheck())
                                 this.checkCheckmate()
                         }
-                        if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 2)
-                            this.pushMove('0-0', undefined, this.isCheck())
-                        else
-                            this.pushMove('0-0-0', undefined, this.isCheck())
+                        this.pushMove(move, undefined, this.isCheck())
                     }
                     this.turn = !this.turn
                     if (this.turn)
@@ -746,7 +753,7 @@ class Game {
     }
 
     listenEndGame() {
-        if(this.live){
+        if (this.live) {
             this.socket.on('endGame', () => {
                 clearInterval(this.timer)
                 removeGame()
@@ -758,20 +765,20 @@ class Game {
 
     endGame() {
         let pgns = ""
-        for(let i = 0; i < this.moves.length; i++) {
+        for (let i = 0; i < this.moves.length; i++) {
             pgns += `${i + 1}. ${this.moves[i]} `
         }
         uploadGame({
             pgn: pgns,
             creation: new Date(),
             moves: this.moves.length,
-            winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite? "black":"white" },
+            winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" },
             game_id: this.code,
             movelist: this.movelist,
-            players: [{ id: this.id, name: this.name, color: this.isWhite? "white":"black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite? "black":"white" }]
+            players: [{ id: this.id, name: this.name, color: this.isWhite ? "white" : "black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" }]
         })
         console.log(this.moves)
-        if(this.live)
+        if (this.live)
             this.socket.emit('endGame', this.code)
     }
 

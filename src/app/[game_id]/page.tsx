@@ -11,20 +11,6 @@ export default function GameAnalysis() {
     const [isWhite, setIsWhite] = useState<boolean | null>(true);
     const [offgame, setOffgame] = useState<any | null>(null);
     const session = useSession()
-    const [boardState, setBoardState] = useState([
-        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-        ['.', '.', '.', '.', '.', '.', '.', '.'],
-        ['.', '.', '.', '.', '.', '.', '.', '.'],
-        ['.', '.', '.', '.', '.', '.', '.', '.'],
-        ['.', '.', '.', '.', '.', '.', '.', '.'],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-    ]);
-
-    const onMove = (from: string, to: string) => {
-
-    }
 
     useEffect(() => {
         console.log(window.location.pathname.split('/')[1])
@@ -56,15 +42,6 @@ export default function GameAnalysis() {
                     const g = new Game(null, null, iswhite, "", "", "", "", false, data)
                     setOffgame(g)
                     setGame(g)
-                    if (isWhite) {
-                        setBoardState([...g.board.map((row: string[]) => [...row])]); // Ensure deep copy of the board
-                        return true
-                    } else {
-                        setBoardState(
-                            [...g.board.map((row: string[]) => [...row].reverse())].reverse() // Reverse for black side
-                        );
-                        return true
-                    }
                 }
             })
     }, [session])
@@ -73,7 +50,7 @@ export default function GameAnalysis() {
             <h1>Game Analysis</h1>
             <div className={styles.home}>
                 {
-                    offgame && <ChessBoard color1={'grey'} color2={'white'} />
+                    offgame && <ChessBoard color1={'grey'} color2={'white'} offGame={offgame}/>
                 }
             </div>
         </div>

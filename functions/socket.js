@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { setGame } from './gamemanager';
+import { getGame, setGame } from './gamemanager';
 import Game from './game/game';
 
 let socket;
@@ -21,15 +21,34 @@ export const getSocket = (user, showPopup, router) => {
                 }
             })
             if (id == userId) {
-                setGame(new Game(socket, roomCode, true, name, userId, oppname, oppid, true, null));
+                const g = new Game(socket, roomCode, true, name, userId, oppname, oppid, true, null)
+                setGame(g);
                 router.push('/')
                 router.refresh()
             }
             else {
-                setGame(new Game(socket, roomCode, false, name, userId, oppname, oppid, true, null));
+                const g = new Game(socket, roomCode, false, name, userId, oppname, oppid, true, null)
+                setGame(g);
                 router.push('/')
                 router.refresh()
             }
+        });
+
+        s.on('game-update', (gameState) => {
+            console.log(gameState);
+            const game = getGame();
+            game.board = gameState.board;
+            if(game.isWhite)
+                game.turn = gameState.turn;
+            else    
+                game.turn = !gameState.turn;
+            game.moves = gameState.moves;
+            game.movelist = gameState.movelist;
+            game.pgn = gameState.pgn;
+            game.history.push(JSON.parse(JSON.stringify(game.board)));
+            game.tempmove = game.tempmove + 1;
+            game.totalmoves = game.totalmoves + 1;
+            console.log(game);
         });
 
         s.on('connect_error', (err) => {

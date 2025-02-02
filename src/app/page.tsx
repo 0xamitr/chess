@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { setGame } from "../../functions/gamemanager";
 import styles from "./page.module.css";
 import ChessBoard from "../../components/ChessBoard/chessboard";
 import createRoom from "../../functions/createroom";
@@ -39,13 +40,13 @@ export default function Home() {
 
   useEffect(() => {
     if (session && session.data && session.data.user) {
-      getSocket(session.data.user, showPopup, router)
+      const s = getSocket(session.data.user, showPopup, router)
     }
   }, [session])
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} />
+      <ChessBoard color1={'grey'} color2={'white'} offGame={null}/>
       <div className={styles.side}>
         {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>

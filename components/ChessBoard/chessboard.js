@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
 import { getGame } from '../../functions/gamemanager';
-import { usePathname } from 'next/navigation';
 
-export default function ChessBoard({ color1, color2 }) {
-    const pathname = usePathname();
-    // Reset the game state when the route changes
-    const game = getGame()
+export default function ChessBoard({ color1, color2, offGame }) {
+    let game
+    if(!offGame)
+        game = getGame()
+    else
+        game = offGame
     const [boardstate, setBoardState] = useState([
         ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
         ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -19,26 +20,7 @@ export default function ChessBoard({ color1, color2 }) {
         ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
     ]);
 
-    useEffect(() => {
-        const resetGameState = () => {
-          setBoardState([
-            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-          ]);
-        };
-    
-        resetGameState();
-    
-      }, [pathname]);
-    
     const onMove = (from, to) => {
-        const game = getGame()
         if (game) {
             const moveMade = game.makeMove(from, to);
             if (moveMade) {
@@ -58,7 +40,6 @@ export default function ChessBoard({ color1, color2 }) {
         else
             return false
     };
-
 
     useEffect(() => {
         if (game) {
@@ -81,7 +62,7 @@ export default function ChessBoard({ color1, color2 }) {
                 });
             }
         }
-    }, [game]);
+    }, [game && game.board]);
 
     let isWhite
     if (game)
