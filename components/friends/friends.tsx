@@ -12,6 +12,7 @@ export default function Friends() {
     const session = useSession()
     const { showPopup } = usePopup()
     const socketRef = useRef<Socket | null>(null);    const [friends, setFriends] = useState<any | null>([]);
+    
     useEffect(() => {
         if (session.data && session.data.user) {
             fetch(`/api/getFriends?id=${session.data.user.id}`)

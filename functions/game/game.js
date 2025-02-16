@@ -9,26 +9,36 @@ class Game {
         this.opponentId = opponentId
         this.name = name;
         this.id = id
+
+        // if the game is being played
         if (this.live) {
             this.socket = socket;
-            this.time = 600;
+            this.whitetime = 600;
+            this.blacktime = 600;
+            this.lastwhitetime = Date.now();
+            this.lastblacktime = null;
             this.timer = null;
             this.starttime = null;
             this.startTimer();
             this.code = code;
-            this.acceptMove();
+            // this.acceptMove();
             this.listenEndGame();
         }
+
         this.totalmoves = 0;
         this.tempmove = 0;
         this.turn = isWhite;
         this.board = this.initializeBoard();
         this.history = [JSON.parse(JSON.stringify(this.board))];
         console.log("live", this.live)
+
+        // if analysing past game
         if (!this.live) {
             let color = "white"
             if (!isWhite)
                 color = "black"
+
+            //setting up the player name and ids
             if (offgame.players[0].color == color) {
                 this.name = offgame.players[0].name
                 this.id = offgame.players[0].id
@@ -41,15 +51,32 @@ class Game {
                 this.opponentId = offgame.players[0].id
                 this.opponentName = offgame.players[0].name
             }
-            console.log("offgame", offgame)
-            console.log("movelist", offgame.movelist)
+
             this.totalmoves = offgame.moves
             this.tempmove = offgame.moves
-            for (let i = 0; i < offgame.movelist.length; i++) {
-                if (offgame.movelist[i].length > 1) {
-                    for (let j = 0; j < offgame.movelist[i].length; j++) {
-                        this.applyMove({ from: offgame.movelist[i][j].from, to: offgame.movelist[i][j].to });
 
+            //applying the moves one at a time
+            for (let i = 0; i < offgame.movelist.length; i++) {
+                //implementing castling
+                console.log(offgame.movelist[i])
+                if (offgame.movelist[i].length > 1) {
+                    //enpassant
+                    if (offgame.movelist[i][1] == 'enPassant') {
+                        this.applyMove(offgame.movelist[i][0])
+                        const toRow = 8 - parseInt(move[0].to[1]);
+                        const toCol = offgame.movelist[i][0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+                        this.board[toRow + 1][toCol] = '.'
+                    }
+                    else if (typeof offgame.movelist[i][1] == 'string') {
+                        this.applyMove(offgame.movelist[i][0])
+                        const toRow = 8 - parseInt(offgame.movelist[i][0].to[1]);
+                        const toCol = offgame.movelist[i][0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+                        this.board[toRow][toCol] = offgame.movelist[i][1]
+                    }
+                    else {
+                        for (let j = 0; j < offgame.movelist[i].length; j++) {
+                            this.applyMove({ from: offgame.movelist[i][j].from, to: offgame.movelist[i][j].to });
+                        }
                     }
                 }
                 else
@@ -57,7 +84,7 @@ class Game {
                 this.turn = !this.turn
                 this.history.push(JSON.parse(JSON.stringify(this.board)))
             }
-            console.log(this.history)
+
         }
         this.onMove = null;
         this.isWhite = isWhite;
@@ -68,29 +95,42 @@ class Game {
         this.enPassant = 0
     }
 
+    //setting up a timer
     startTimer() {
-        this.starttime = Date.now();
         this.timer = setInterval(() => {
             if (this.turn) {
-                const currentTime = Date.now();
-                const elapsed = (currentTime - this.starttime) / 1000; // Time in seconds
-
-                this.time -= elapsed;
-
-                if (this.time <= 0) {
-                    this.time = 0;
-                    clearInterval(this.timer);
-                    this.endGame();
+                if (this.isWhite) {
+                    const currentTime = Date.now();
+                    const elapsed = (currentTime - this.lastwhitetime) / 1000; // Time in seconds
+                    this.whitetime -= elapsed;
+                    this.lastwhitetime = currentTime;
                 }
-                this.starttime = currentTime;
+                else {
+                    const currentTime = Date.now();
+                    const elapsed = (currentTime - this.lastblacktime) / 1000;
+                    this.blacktime -= elapsed;
+                    this.lastblacktime = currentTime;
+                }
             }
             else {
-                this.starttime = Date.now(); // Reset for accurate tracking
+                if (this.isWhite) {
+                    const currentTime = Date.now();
+                    const elapsed = (currentTime - this.lastblacktime) / 1000;
+                    this.blacktime -= elapsed;
+                    this.lastblacktime = currentTime;
+                }
+                else {
+                    const currentTime = Date.now();
+                    const elapsed = (currentTime - this.lastwhitetime) / 1000; // Time in seconds
+                    this.whitetime -= elapsed;
+                    this.lastwhitetime = currentTime;
+                }
 
             }
-        }, 100);
+        }, 1000);
     }
 
+    // gets coords from a move for e.g. {e2, e4} to {[4,2], [4,4]}
     getCoords(move) {
         const from = move.from;
         const to = move.to;
@@ -106,7 +146,7 @@ class Game {
 
     }
 
-
+    // initalize board in the beginning of the game
     initializeBoard() {
         return [
             ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
@@ -124,6 +164,7 @@ class Game {
         return this.board[row][col];
     }
 
+    // check if a square is under attack (possibly to check if a king is in check)
     isSquareUnderAttack(row, col, isWhite) {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
@@ -145,6 +186,7 @@ class Game {
         return false;
     }
 
+    // checking if a particular move is legal
     isMoveValid(from, to) {
         if (!from)
             return false
@@ -199,6 +241,7 @@ class Game {
         }
     }
 
+    // a copy of isMoveValid without checking for check to avoid infinite recursion
     isMoveValidCp(from, to) {
         if (!from)
             return false
@@ -237,6 +280,7 @@ class Game {
         }
     }
 
+    // get all valid moves from a square
     getValidMoves(from) {
         const validMoves = [];
         for (let row = 0; row < 8; row++) {
@@ -250,6 +294,7 @@ class Game {
         return validMoves;
     }
 
+    // check if two pieces are of the same player
     isSamePlayer(piece1, piece2) {
         if (piece1 == piece1.toUpperCase() && piece2 == piece2.toUpperCase())
             return true;
@@ -258,6 +303,7 @@ class Game {
         return false
     }
 
+    // check if the move is a valid pawn move
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
         const direction = isWhite ? -1 : 1;
         if (fromCol === toCol) {
@@ -281,6 +327,7 @@ class Game {
         return false;
     }
 
+    // check if the move is a valid bishop move
     isValidBishopMove(fromRow, fromCol, toRow, toCol) {
         if (Math.abs(fromRow - toRow) !== Math.abs(fromCol - toCol)) {
             return false;
@@ -301,6 +348,7 @@ class Game {
         return true;
     }
 
+    // check if the move is a valid rook move
     isValidRookMove(fromRow, fromCol, toRow, toCol) {
         if (fromRow !== toRow && fromCol !== toCol)
             return false;
@@ -318,10 +366,12 @@ class Game {
         return true;
     }
 
+    // check if the move is a valid queen move
     isValidQueenMove(fromRow, fromCol, toRow, toCol) {
         return this.isValidRookMove(fromRow, fromCol, toRow, toCol) || this.isValidBishopMove(fromRow, fromCol, toRow, toCol);
     }
 
+    // check if the move is a valid king move
     isValidKingMove(fromRow, fromCol, toRow, toCol) {
         if (this.isWhite && this.board[fromRow][fromCol] != 'K')
             return false
@@ -393,15 +443,18 @@ class Game {
         }
     }
 
+    // check if the move is a valid knight move
     isValidKnightMove(fromRow, fromCol, toRow, toCol) {
         return (Math.abs(fromRow - toRow) === 2 && Math.abs(fromCol - toCol) === 1) ||
             (Math.abs(fromRow - toRow) === 1 && Math.abs(fromCol - toCol) === 2);
     }
 
+    // check if its my turn
     getTurn() {
         return this.turn
     }
 
+    // make a move and emit it to the backend
     makeMove(from, to) {
         if (!this.turn)
             return false
@@ -496,6 +549,7 @@ class Game {
         return true
     }
 
+    // get disabiguation for a move (used to generate accurate pgn)
     getDisambiguation(coords) {
         const piecetoMove = this.board[coords.from[0]][coords.from[1]]
         const to = String.fromCharCode(97 + coords.to[1]) + (8 - coords.to[0]);
@@ -531,6 +585,7 @@ class Game {
         return ""
     }
 
+    // push a move to the pgn
     pushMove(move, promotion, isCheck) {
         this.movelist.push(move)
         if (move.length > 1) {
@@ -580,77 +635,82 @@ class Game {
         this.moves.push(moveMade)
     }
 
-    acceptMove() {
-        if (this.live) {
-            this.socket.on('move', (move) => {
-                let movestr = ""
-                let num = 1;
-                console.log(this.getmoves())
-                for (let i = 0; i < this.getmoves().length; i++) {
-                    movestr += `${num}. ${this.getmoves()[i++]} ${this.getmoves()[i]} `
-                    num++;
-                }
-                console.log(movestr)
-                if (Array.isArray(move)) {
-                    //promotion
-                    if (move[1].hasOwnProperty('promotion')) {
-                        this.applyMove(move[0])
-                        this.pushMove({ from: move[0].from, to: move[0].to }, move[1].promotion, this.isCheck())
-                        const toRow = 8 - parseInt(move[0].to[1]);
-                        const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-                        this.board[toRow][toCol] = move[1].promotion
-                    }
-                    //enpassant
-                    else if (move[1] == 'enPassant') {
-                        this.pushMove({ from: move[0].from, to: move[0].to }, move[1], this.isCheck())
-                        this.applyMove(move[0])
-                        const toRow = 8 - parseInt(move[0].to[1]);
-                        const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-                        this.board[toRow + 1][toCol] = '.'
-                        this.enPassant = 0
-                    }
-                    //castling
-                    else {
-                        for (let i = 0; i < move.length; i++) {
-                            this.applyMove(move[i])
-                            if (this.isCheck())
-                                this.checkCheckmate()
-                        }
-                        this.pushMove(move, undefined, this.isCheck())
-                    }
-                    this.turn = !this.turn
-                    if (this.turn)
-                        this.startTimer = Date.now()
-                    this.totalmoves++
-                    this.tempmove = this.totalmoves
-                    this.history.push(JSON.parse(JSON.stringify(this.board)))
-                    this.enPassant = 0;
-                }
-                //rest of the moves
-                else {
-                    if (move.from[1] == '2' && move.to[1] == '4')
-                        this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
-                    else if (move.from[1] == '7' && move.to[1] == '5')
-                        this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
-                    else
-                        this.enPassant = 0;
+    // // accept a move from the backend
+    // acceptMove() {
+    //     if (this.live) {
+    //         this.socket.on('move', (move) => {
+    //             let movestr = ""
+    //             let num = 1;
+    //             console.log(this.getmoves())
+    //             for (let i = 0; i < this.getmoves().length; i++) {
+    //                 movestr += `${num}. ${this.getmoves()[i++]} ${this.getmoves()[i]} `
+    //                 num++;
+    //             }
+    //             console.log(movestr)
+    //             if (Array.isArray(move)) {
+    //                 //promotion
+    //                 if (move[1].hasOwnProperty('promotion')) {
+    //                     this.applyMove(move[0])
+    //                     this.pushMove({ from: move[0].from, to: move[0].to }, move[1].promotion, this.isCheck())
+    //                     const toRow = 8 - parseInt(move[0].to[1]);
+    //                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+    //                     this.board[toRow][toCol] = move[1].promotion
+    //                 }
+    //                 //enpassant
+    //                 else if (move[1] == 'enPassant') {
+    //                     this.pushMove({ from: move[0].from, to: move[0].to }, move[1], this.isCheck())
+    //                     this.applyMove(move[0])
+    //                     const toRow = 8 - parseInt(move[0].to[1]);
+    //                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
+    //                     this.board[toRow + 1][toCol] = '.'
+    //                     this.enPassant = 0
+    //                 }
+    //                 //castling
+    //                 else {
+    //                     for (let i = 0; i < move.length; i++) {
+    //                         this.applyMove(move[i])
+    //                         if (this.isCheck())
+    //                             this.checkCheckmate()
+    //                     }
+    //                     this.pushMove(move, undefined, this.isCheck())
+    //                 }
+    //                 this.turn = !this.turn
+    //                 // if (this.turn && this.isWhite)
+    //                 //     this.lastwhitetime = Date.now()
+    //                 // if(this.turn && !this.isWhite)
+    //                 //     this.lastblacktime = Date.now()
+    //                 this.totalmoves++
+    //                 this.tempmove = this.totalmoves
+    //                 this.history.push(JSON.parse(JSON.stringify(this.board)))
+    //                 this.enPassant = 0;
+    //             }
+    //             //rest of the moves
+    //             else {
+    //                 if (move.from[1] == '2' && move.to[1] == '4')
+    //                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
+    //                 else if (move.from[1] == '7' && move.to[1] == '5')
+    //                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
+    //                 else
+    //                     this.enPassant = 0;
 
-                    this.pushMove(move, undefined, this.isCheck())
-                    this.applyMove(move)
-                    this.history.push(JSON.parse(JSON.stringify(this.board)))
-                    this.turn = !this.turn
-                    if (this.turn)
-                        this.startTimer = Date.now()
-                    this.totalmoves++
-                    this.tempmove = this.totalmoves
-                }
-                if (this.isCheck())
-                    this.checkCheckmate()
-                else
-                    this.checkStalemate()
-            })
-        }
-    }
+    //                 this.pushMove(move, undefined, this.isCheck())
+    //                 this.applyMove(move)
+    //                 this.history.push(JSON.parse(JSON.stringify(this.board)))
+    //                 this.turn = !this.turn
+    //                 // if (this.turn && this.isWhite)
+    //                 //     this.lastwhitetime = Date.now()
+    //                 // if(this.turn && !this.isWhite)
+    //                 //     this.lastblacktime = Date.now()
+    //                 this.totalmoves++
+    //                 this.tempmove = this.totalmoves
+    //             }
+    //             if (this.isCheck())
+    //                 this.checkCheckmate()
+    //             else
+    //                 this.checkStalemate()
+    //         })
+    //     }
+    // }
 
     checkStalemate() {
         for (let i = 0; i < 8; i++) {
@@ -768,15 +828,15 @@ class Game {
         for (let i = 0; i < this.moves.length; i++) {
             pgns += `${i + 1}. ${this.moves[i]} `
         }
-        uploadGame({
-            pgn: pgns,
-            creation: new Date(),
-            moves: this.moves.length,
-            winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" },
-            game_id: this.code,
-            movelist: this.movelist,
-            players: [{ id: this.id, name: this.name, color: this.isWhite ? "white" : "black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" }]
-        })
+        // uploadGame({
+        //     pgn: pgns,
+        //     creation: new Date(),
+        //     moves: this.moves.length,
+        //     winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" },
+        //     game_id: this.code,
+        //     movelist: this.movelist,
+        //     players: [{ id: this.id, name: this.name, color: this.isWhite ? "white" : "black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" }]
+        // })
         console.log(this.moves)
         if (this.live)
             this.socket.emit('endGame', this.code)

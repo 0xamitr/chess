@@ -35,20 +35,48 @@ export const getSocket = (user, showPopup, router) => {
         });
 
         s.on('game-update', (gameState) => {
-            console.log(gameState);
-            const game = getGame();
+            let refreshsheduled = false;
+            let game = getGame();
+            console.log(game)
+            if (!game) {
+                refreshsheduled = true;
+                if(userId == gameState.player1Id)
+                    game = new Game(socket, gameState.roomCode, true, gameState.player1Name, gameState.player1Id, gameState.player2Name, gameState.player2Id, true, null);
+                else
+                    game = new Game(socket, gameState.roomCode, false, gameState.player2Name, gameState.player2Id, gameState.player1Name, gameState.player1Id, true, null);
+                setGame(game);
+                for (let i = 0; i < gameState.movelist.length; i++) {
+                    if (gameState.movelist[i].length > 1) {
+                        for (let j = 0; j < gameState.movelist[i].length; j++) {
+                            game.applyMove({ from: gameState.movelist[i][j].from, to: gameState.movelist[i][j].to });
+                        }
+                    }
+                    else
+                        game.applyMove({ from: gameState.movelist[i].from, to: gameState.movelist[i].to });
+                    game.history.push(JSON.parse(JSON.stringify(game.board)))
+                }
+            }
+            else {
+                game.history.push(JSON.parse(JSON.stringify(gameState.board)));
+            }
             game.board = gameState.board;
-            if(game.isWhite)
+            if (game.isWhite)
                 game.turn = gameState.turn;
-            else    
+            else
                 game.turn = !gameState.turn;
+            game.whitetime = gameState.whitetime
+            game.lastwhitetime = gameState.lastwhitetime
+            game.lastblacktime = gameState.lastblacktime
+            game.blacktime = gameState.blacktime
+            game.tempmove = gameState.tempmove;
+            game.totalmoves = gameState.totalmoves;
             game.moves = gameState.moves;
             game.movelist = gameState.movelist;
             game.pgn = gameState.pgn;
-            game.history.push(JSON.parse(JSON.stringify(game.board)));
-            game.tempmove = game.tempmove + 1;
-            game.totalmoves = game.totalmoves + 1;
-            console.log(game);
+            if(refreshsheduled){
+                router.push('/')
+                router.refresh()
+            }
         });
 
         s.on('connect_error', (err) => {

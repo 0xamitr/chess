@@ -39,6 +39,7 @@ export default function GameAnalysis() {
                             iswhite = false
                     }
                     setIsWhite(iswhite)
+                    console.log(data)
                     const g = new Game(null, null, iswhite, "", "", "", "", false, data)
                     setOffgame(g)
                     setGame(g)

@@ -74,7 +74,8 @@ export default function ChessBoard({ color1, color2, offGame }) {
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [validMoves, setValidMoves] = useState([]);
-    const [time, setTime] = useState(null)
+    const [mytime, setMytime] = useState(null)
+    const [opptime, setOpptime] = useState(null)
     const [fromto, setFromto] = useState(null)
 
 
@@ -140,16 +141,33 @@ export default function ChessBoard({ color1, color2, offGame }) {
             toCol = 'h'.charCodeAt(0) - to.charCodeAt(0);
         }
         console.log(toRow, toCol)
+        console.log(boardRef)
         const promotion = boardRef.current[toRow][toCol].current;
+        console.log(promotion)
         promotion.style.display = 'flex'
         setFromto({ from: from, to: to })
     }
 
+    const handleit = (e) => {
+        if(e.key == 'ArrowLeft')
+            handleGoback()
+        else if(e.key == 'ArrowRight')
+            handleGofront()
+    }
+
     useEffect(() => {
         if (game) {
+            document.addEventListener("keydown", handleit)
             game.getPromotion = getPromotion;
             const interval = setInterval(() => {
-                setTime(game.time);
+                if(game.isWhite){
+                    setMytime(game.whitetime);
+                    setOpptime(game.blacktime);
+                }
+                else{
+                    setMytime(game.blacktime);
+                    setOpptime(game.whitetime);
+                }
                 if (game.time < 1) {
                     clearInterval(interval);
                 }
@@ -158,6 +176,9 @@ export default function ChessBoard({ color1, color2, offGame }) {
                 setBoardState(game.history[game.tempmove])
             else
                 setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
+        }
+        return () => {
+            document.removeEventListener("keydown", handleit)
         }
     }, [game])
 
@@ -256,7 +277,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
             setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
     }
 
-
     // const handleOnMouseDown = (e, i, j) => {
     //     setSelectedPiece(boardstate[i][j])
     //     setSelectedPosition({ i: i, j: j });
@@ -327,7 +347,10 @@ export default function ChessBoard({ color1, color2, offGame }) {
 
     return (
         <div>
-            <h2>{game && game.opponentName}</h2>
+            {game && <>
+                <h2>{game.opponentName}</h2>
+                <div>{ImproveTime(opptime)}</div>
+            </>}
             <div id='chessboard' className={`${styles.chessboard} ${isWhite !== false ? "" : styles.rotated}`}>
                 {boardstate.map((row, i) => (
                     <div className={styles.row} key={i}>
@@ -369,10 +392,10 @@ export default function ChessBoard({ color1, color2, offGame }) {
                     </div>
                 ))}
             </div>
-            <h2>{game && game.name}</h2>
-            <div>
-                {ImproveTime(time)}
-            </div>
+            {game && <>
+                <h2>{game.name}</h2>
+                <div>{ImproveTime(mytime)}</div>
+            </>}
             <button onClick={handleGoback}>
                 GO BACK
             </button>
