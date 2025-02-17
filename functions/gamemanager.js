@@ -5,7 +5,11 @@ export function getGame() {
 }
 
 export function setGame(newGame) {
-    game = newGame;
+    if(game) {
+        throw new Error('Game already exists');
+    }
+    else
+        game = newGame;
 }
 
 export function removeGame() {

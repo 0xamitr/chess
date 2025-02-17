@@ -439,6 +439,7 @@ class Game {
             }
         }
         if (Math.abs(Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1)) {
+            console.log("wow", Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1)
             return Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1;
         }
     }
@@ -473,11 +474,27 @@ class Game {
         if (!this.isMoveValid(from, to))
             return false
 
+        console.log("fsadk")
+
         let move = { from, to }
         const code = this.code
 
+        // if(this.board[fromRow][fromCol] == 'r' || this.board[fromRow][fromCol] == 'R'){
+        //     if(this.isWhite){
+        //         if(fromRow == 0 && fromCol == 0)
+        //             this.leftrookMove = true
+        //         if(fromRow == 0 && fromCol == 7)
+        //             this.rightrookMove = true
+        //     }
+        //     else{
+        //         if(fromRow == 7 && fromCol == 0)
+        //             this.rightrookMove = true
+        //         if(fromRow == 7 && fromCol == 7)
+        //             this.leftrookMove = true
+        //     }
+        // }
         if (this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k') {
-            if (fromRow != toRow) {
+            if (fromRow != toRow || fromCol - toCol == 1 || fromCol - toCol == -1) {
                 if (this.live)
                     this.socket.emit('move', move, code)
                 this.check = false
@@ -500,9 +517,6 @@ class Game {
                             this.socket.emit('move', move, code)
                     }
                 }
-                else
-                    if (this.live)
-                        this.socket.emit('move', move, code)
             }
             else {
                 if (this.kingMove == false) {
@@ -521,11 +535,8 @@ class Game {
                             this.socket.emit('move', move, code)
                     }
                 }
-                else
-                    if (this.live)
-                        this.socket.emit('move', move, code)
             }
-            this.kingMove = true
+            // this.kingMove = true
         }
         else {
             if (this.enPassant != 0) {

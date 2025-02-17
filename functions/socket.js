@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { getGame, setGame } from './gamemanager';
+import { getGame, removeGame, setGame } from './gamemanager';
 import Game from './game/game';
 
 let socket;
@@ -10,6 +10,13 @@ export const getSocket = (user, showPopup, router) => {
         const name = user.name;
         const s = io(process.env.NEXT_PUBLIC_SERVER, { query: { id: userId, username: name } });
         socket = s;
+        s.on('gameover', ()=>{
+            console.log("shut the fuck up man timererof your bullshit")
+            alert("hafdhskfjhsadjkfhsdjkfhsjkdfhsdjkfhasdkhfdsjkfhsdjakhfsjdkahf")
+            removeGame();
+            router.push('/')
+            router.refresh()
+        })
         s.on('connection_established', (id, roomCode, opp) => {
             let oppid;
             let oppname;
@@ -20,6 +27,9 @@ export const getSocket = (user, showPopup, router) => {
 
                 }
             })
+            if(getGame()){
+                return showPopup("You are already in a game", "error", "top-right");
+            }
             if (id == userId) {
                 const g = new Game(socket, roomCode, true, name, userId, oppname, oppid, true, null)
                 setGame(g);
@@ -60,10 +70,21 @@ export const getSocket = (user, showPopup, router) => {
                 game.history.push(JSON.parse(JSON.stringify(gameState.board)));
             }
             game.board = gameState.board;
-            if (game.isWhite)
+            if (game.isWhite){  
+                console.log("white", gameState.whiteleftrookMove, gameState.whiterightrookMove, gameState.whitekingMove)
+                game.kingMove = gameState.whitekingMove,
+                game.leftrookMove = gameState.whiteleftrookMove,
+                game.rightrookMove = gameState.whiterightrookMove,
                 game.turn = gameState.turn;
-            else
+            }
+            else{
+                game.kingMove = gameState.blackkingMove,
+                game.leftrookMove = gameState.blackleftrookMove,
+                game.rightrookMove = gameState.blackrightrookMove,
                 game.turn = !gameState.turn;
+            }
+
+            game.enPassant = gameState.enPassant
             game.whitetime = gameState.whitetime
             game.lastwhitetime = gameState.lastwhitetime
             game.lastblacktime = gameState.lastblacktime
