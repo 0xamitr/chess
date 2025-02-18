@@ -377,6 +377,7 @@ class Game {
             return false
         if (!this.isWhite && this.board[fromRow][fromCol] != 'k')
             return false
+        console.log(fromRow, fromCol)
         if (this.isWhite && this.kingMove == false) {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
@@ -410,13 +411,13 @@ class Game {
                 return true
             }
         }
-        else if (this.kingMove == false) {
+        if (!this.isWhite && this.kingMove == false) {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
                     return false
                 if (this.check)
                     return false
-                if (this.leftrookMove == true)
+                if (this.rightrookMove == true)
                     return false
                 if (this.isSquareUnderAttack(fromRow, fromCol - 1, this.isWhite))
                     return false
@@ -429,7 +430,7 @@ class Game {
                     return false
                 if (this.check)
                     return false
-                if (this.rightrookMove == true)
+                if (this.leftrookMove == true)
                     return false
                 if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite))
                     return false
