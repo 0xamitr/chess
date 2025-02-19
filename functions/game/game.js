@@ -24,7 +24,8 @@ class Game {
             // this.acceptMove();
             this.listenEndGame();
         }
-
+        
+        this.isWhite = isWhite;
         this.totalmoves = 0;
         this.tempmove = 0;
         this.turn = isWhite;
@@ -63,9 +64,13 @@ class Game {
                     //enpassant
                     if (offgame.movelist[i][1] == 'enPassant') {
                         this.applyMove(offgame.movelist[i][0])
-                        const toRow = 8 - parseInt(move[0].to[1]);
+                        const toRow = 8 - parseInt(offgame.movelist[i][0].to[1]);
                         const toCol = offgame.movelist[i][0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-                        this.board[toRow + 1][toCol] = '.'
+                        console.log(this.isWhite, "je")
+                        if(this.board[toRow][toCol] == 'P')
+                            this.board[toRow + 1][toCol] = '.'
+                        else
+                            this.board[toRow - 1][toCol] = '.'
                     }
                     else if (typeof offgame.movelist[i][1] == 'string') {
                         this.applyMove(offgame.movelist[i][0])
@@ -87,7 +92,6 @@ class Game {
 
         }
         this.onMove = null;
-        this.isWhite = isWhite;
         this.check = false;
         this.kingMove = false
         this.leftrookMove = false

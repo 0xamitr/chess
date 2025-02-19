@@ -124,8 +124,10 @@ export default function ChessBoard({ color1, color2, offGame }) {
             toCol = 'h'.charCodeAt(0) - fromto.to.charCodeAt(0);
         }
         console.log(toRow, toCol)
+        console.log("what the hello going on")
         const promotion = boardRef.current[toRow][toCol].current;
         promotion.style.display = 'none'
+        console.log(move)
         game.socket.emit('move', move, game.code);
     }
 
