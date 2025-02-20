@@ -5,7 +5,7 @@ import { getGame } from '../../functions/gamemanager';
 
 export default function ChessBoard({ color1, color2, offGame }) {
     let game
-    if(!offGame)
+    if (!offGame)
         game = getGame()
     else
         game = offGame
@@ -151,9 +151,9 @@ export default function ChessBoard({ color1, color2, offGame }) {
     }
 
     const handleit = (e) => {
-        if(e.key == 'ArrowLeft')
+        if (e.key == 'ArrowLeft')
             handleGoback()
-        else if(e.key == 'ArrowRight')
+        else if (e.key == 'ArrowRight')
             handleGofront()
     }
 
@@ -162,11 +162,11 @@ export default function ChessBoard({ color1, color2, offGame }) {
             document.addEventListener("keydown", handleit)
             game.getPromotion = getPromotion;
             const interval = setInterval(() => {
-                if(game.isWhite){
+                if (game.isWhite) {
                     setMytime(game.whitetime);
                     setOpptime(game.blacktime);
                 }
-                else{
+                else {
                     setMytime(game.blacktime);
                     setOpptime(game.whitetime);
                 }
@@ -351,7 +351,10 @@ export default function ChessBoard({ color1, color2, offGame }) {
         <div>
             {game && <>
                 <h2>{game.opponentName}</h2>
-                <div>{ImproveTime(opptime)}</div>
+                {
+                    game.live &&
+                    <div>{ImproveTime(opptime)}</div>
+                }
             </>}
             <div id='chessboard' className={`${styles.chessboard} ${isWhite !== false ? "" : styles.rotated}`}>
                 {boardstate.map((row, i) => (
@@ -396,7 +399,10 @@ export default function ChessBoard({ color1, color2, offGame }) {
             </div>
             {game && <>
                 <h2>{game.name}</h2>
-                <div>{ImproveTime(mytime)}</div>
+                {
+                    game.live &&
+                    <div>{ImproveTime(mytime)}</div>
+                }
             </>}
             <button onClick={handleGoback}>
                 GO BACK

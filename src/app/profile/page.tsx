@@ -46,7 +46,7 @@ export default function Profile() {
                                 )}
 
                                 <p>{game.moves} Moves</p>
-                                <p>Creation: {game.creation}</p>
+                                <p>{(new Date (game.creation)).toLocaleString()}</p>
                             </Link>
                         ))}
                     </div>
