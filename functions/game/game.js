@@ -31,7 +31,6 @@ class Game {
         this.turn = isWhite;
         this.board = this.initializeBoard();
         this.history = [JSON.parse(JSON.stringify(this.board))];
-        console.log("live", this.live)
 
         // if analysing past game
         if (!this.live) {
@@ -59,14 +58,12 @@ class Game {
             //applying the moves one at a time
             for (let i = 0; i < offgame.movelist.length; i++) {
                 //implementing castling
-                console.log(offgame.movelist[i])
                 if (offgame.movelist[i].length > 1) {
                     //enpassant
                     if (offgame.movelist[i][1] == 'enPassant') {
                         this.applyMove(offgame.movelist[i][0])
                         const toRow = 8 - parseInt(offgame.movelist[i][0].to[1]);
                         const toCol = offgame.movelist[i][0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-                        console.log(this.isWhite, "je")
                         if(this.board[toRow][toCol] == 'P')
                             this.board[toRow + 1][toCol] = '.'
                         else
@@ -92,7 +89,6 @@ class Game {
 
         }
         this.onMove = null;
-        this.check = false;
         this.kingMove = false
         this.leftrookMove = false
         this.rightrookMove = false
@@ -224,7 +220,6 @@ class Game {
         this.board[toRow][toCol] = targetPiece;
 
         if (check) {
-            this.check = false
             return false
         }
         switch (piece.toLowerCase()) {
@@ -381,12 +376,9 @@ class Game {
             return false
         if (!this.isWhite && this.board[fromRow][fromCol] != 'k')
             return false
-        console.log(fromRow, fromCol)
         if (this.isWhite && this.kingMove == false) {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
-                    return false
-                if (this.check)
                     return false
                 if (this.leftrookMove == true)
                     return false
@@ -397,29 +389,20 @@ class Game {
                 return true
             }
             else if (fromRow == toRow && fromCol == toCol - 2) {
-                if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.') {
+                if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.')
                     return false
-                }
-                if (this.check) {
+                if (this.rightrookMove == true)
                     return false
-                }
-                if (this.rightrookMove == true) {
+                if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite))
                     return false
-                }
-                if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite)) {
+                if (this.isSquareUnderAttack(fromRow, fromCol + 2, this.isWhite))
                     return false
-                }
-                if (this.isSquareUnderAttack(fromRow, fromCol + 2, this.isWhite)) {
-                    return false
-                }
                 return true
             }
         }
         if (!this.isWhite && this.kingMove == false) {
             if (fromRow == toRow && fromCol == toCol + 2) {
                 if (this.board[fromRow][fromCol - 1] != '.' || this.board[fromRow][fromCol - 2] != '.')
-                    return false
-                if (this.check)
                     return false
                 if (this.rightrookMove == true)
                     return false
@@ -432,8 +415,6 @@ class Game {
             else if (fromRow == toRow && fromCol == toCol - 2) {
                 if (this.board[fromRow][fromCol + 1] != '.' || this.board[fromRow][fromCol + 2] != '.')
                     return false
-                if (this.check)
-                    return false
                 if (this.leftrookMove == true)
                     return false
                 if (this.isSquareUnderAttack(fromRow, fromCol + 1, this.isWhite))
@@ -444,7 +425,6 @@ class Game {
             }
         }
         if (Math.abs(Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1)) {
-            console.log("wow", Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1)
             return Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1;
         }
     }
@@ -479,30 +459,13 @@ class Game {
         if (!this.isMoveValid(from, to))
             return false
 
-        console.log("fsadk")
-
         let move = { from, to }
         const code = this.code
 
-        // if(this.board[fromRow][fromCol] == 'r' || this.board[fromRow][fromCol] == 'R'){
-        //     if(this.isWhite){
-        //         if(fromRow == 0 && fromCol == 0)
-        //             this.leftrookMove = true
-        //         if(fromRow == 0 && fromCol == 7)
-        //             this.rightrookMove = true
-        //     }
-        //     else{
-        //         if(fromRow == 7 && fromCol == 0)
-        //             this.rightrookMove = true
-        //         if(fromRow == 7 && fromCol == 7)
-        //             this.leftrookMove = true
-        //     }
-        // }
         if (this.board[fromRow][fromCol] == 'K' || this.board[fromRow][fromCol] == 'k') {
             if (fromRow != toRow || fromCol - toCol == 1 || fromCol - toCol == -1) {
                 if (this.live)
                     this.socket.emit('move', move, code)
-                this.check = false
                 return true
             }
             if (this.isWhite) {
@@ -541,7 +504,6 @@ class Game {
                     }
                 }
             }
-            // this.kingMove = true
         }
         else {
             if (this.enPassant != 0) {
@@ -561,186 +523,22 @@ class Game {
                     this.socket.emit('move', move, code)
             }
         }
-        this.check = false
         return true
     }
 
-    // get disabiguation for a move (used to generate accurate pgn)
-    getDisambiguation(coords) {
-        const piecetoMove = this.board[coords.from[0]][coords.from[1]]
-        const to = String.fromCharCode(97 + coords.to[1]) + (8 - coords.to[0]);
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (this.board[i][j] == piecetoMove) {
-                    if (i == coords.from[0] && j == coords.from[1])
-                        continue
-                    if (this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), to)) {
-                        let k = 0
-                        for (let file = 0; file < 8; file++) {
-                            if (this.board[coords.from[0]][file] == piecetoMove)
-                                k++
-                        }
-                        if (k > 1)
-                            return String.fromCharCode(97 + coords.from[1])
-
-                        k = 0
-                        for (let rank = 0; rank < 8; rank++) {
-                            if (this.board[rank][coords.from[1]] == piecetoMove)
-                                k++
-                        }
-                        if (k > 1)
-                            return 8 - coords.from[0]
-                        //for a knight(not sure)
-                        let out = String.fromCharCode(97 + coords.from[1])
-                        out += 8 - coords.from[0]
-                        return out
-                    }
-                }
-            }
-        }
-        return ""
-    }
-
-    // push a move to the pgn
-    pushMove(move, promotion, isCheck) {
-        this.movelist.push(move)
-        if (move.length > 1) {
-            if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 2)
-                this.moves.push('0-0')
-            else if (Math.abs(move[1].from[0].charCodeAt(0) - move[1].to[0].charCodeAt(0)) == 3)
-                this.moves.push('0-0-0')
-            return;
-        }
-        const coords = this.getCoords(move)
-        const pieceMoved = this.board[coords.from[0]][coords.from[1]].toUpperCase()
-        const destinationPiece = this.board[coords.to[0]][coords.to[1]]
-        let moveMade = ""
-        if (pieceMoved != 'P') {
-            moveMade += pieceMoved
-        }
-        else {
-            if (promotion) {
-                if (promotion == 'enPassant') {
-                    moveMade += move.from[0]
-                    moveMade += 'x'
-                }
-            }
-        }
-        const desambiguation = this.getDisambiguation(coords)
-        if (desambiguation) {
-            moveMade += desambiguation
-        }
-        if (destinationPiece != '.') {
-            moveMade += 'x'
-        }
-        moveMade += move.to
-
-        if (pieceMoved == 'P') {
-            if (promotion) {
-                if (promotion == 'enPassant') {
-                    moveMade += ' e.p.'
-                }
-                else {
-                    moveMade += '='
-                    moveMade += promotion
-                }
-            }
-        }
-        if (isCheck)
-            moveMade += '+'
-        this.moves.push(moveMade)
-    }
-
-    // // accept a move from the backend
-    // acceptMove() {
-    //     if (this.live) {
-    //         this.socket.on('move', (move) => {
-    //             let movestr = ""
-    //             let num = 1;
-    //             console.log(this.getmoves())
-    //             for (let i = 0; i < this.getmoves().length; i++) {
-    //                 movestr += `${num}. ${this.getmoves()[i++]} ${this.getmoves()[i]} `
-    //                 num++;
-    //             }
-    //             console.log(movestr)
-    //             if (Array.isArray(move)) {
-    //                 //promotion
-    //                 if (move[1].hasOwnProperty('promotion')) {
-    //                     this.applyMove(move[0])
-    //                     this.pushMove({ from: move[0].from, to: move[0].to }, move[1].promotion, this.isCheck())
-    //                     const toRow = 8 - parseInt(move[0].to[1]);
-    //                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-    //                     this.board[toRow][toCol] = move[1].promotion
-    //                 }
-    //                 //enpassant
-    //                 else if (move[1] == 'enPassant') {
-    //                     this.pushMove({ from: move[0].from, to: move[0].to }, move[1], this.isCheck())
-    //                     this.applyMove(move[0])
-    //                     const toRow = 8 - parseInt(move[0].to[1]);
-    //                     const toCol = move[0].to.charCodeAt(0) - 'a'.charCodeAt(0);
-    //                     this.board[toRow + 1][toCol] = '.'
-    //                     this.enPassant = 0
-    //                 }
-    //                 //castling
-    //                 else {
-    //                     for (let i = 0; i < move.length; i++) {
-    //                         this.applyMove(move[i])
-    //                         if (this.isCheck())
-    //                             this.checkCheckmate()
-    //                     }
-    //                     this.pushMove(move, undefined, this.isCheck())
-    //                 }
-    //                 this.turn = !this.turn
-    //                 // if (this.turn && this.isWhite)
-    //                 //     this.lastwhitetime = Date.now()
-    //                 // if(this.turn && !this.isWhite)
-    //                 //     this.lastblacktime = Date.now()
-    //                 this.totalmoves++
-    //                 this.tempmove = this.totalmoves
-    //                 this.history.push(JSON.parse(JSON.stringify(this.board)))
-    //                 this.enPassant = 0;
-    //             }
-    //             //rest of the moves
-    //             else {
-    //                 if (move.from[1] == '2' && move.to[1] == '4')
-    //                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
-    //                 else if (move.from[1] == '7' && move.to[1] == '5')
-    //                     this.enPassant = move.from.charCodeAt(0) - 'a'.charCodeAt(0)
-    //                 else
-    //                     this.enPassant = 0;
-
-    //                 this.pushMove(move, undefined, this.isCheck())
-    //                 this.applyMove(move)
-    //                 this.history.push(JSON.parse(JSON.stringify(this.board)))
-    //                 this.turn = !this.turn
-    //                 // if (this.turn && this.isWhite)
-    //                 //     this.lastwhitetime = Date.now()
-    //                 // if(this.turn && !this.isWhite)
-    //                 //     this.lastblacktime = Date.now()
-    //                 this.totalmoves++
-    //                 this.tempmove = this.totalmoves
-    //             }
-    //             if (this.isCheck())
-    //                 this.checkCheckmate()
-    //             else
-    //                 this.checkStalemate()
-    //         })
+    // checkStalemate() {
+    //     for (let i = 0; i < 8; i++) {
+    //         for (let j = 0; j < 8; j++) {
+    //             const from = String.fromCharCode(97 + j) + (8 - i)
+    //             const moves = this.getValidMoves(from)
+    //             if (moves.length > 0)
+    //                 return false
+    //         }
     //     }
+    //     alert("Stalemate! It's a draw")
+    //     this.endGame()
+    //     return true
     // }
-
-    checkStalemate() {
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                const from = String.fromCharCode(97 + j) + (8 - i)
-                const moves = this.getValidMoves(from)
-                if (moves.length > 0)
-                    return false
-            }
-        }
-        alert("Stalemate! It's a draw")
-        this.endGame()
-        return true
-    }
 
     isCheck() {
         let kingRow, kingCol
@@ -763,7 +561,6 @@ class Game {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (this.isMoveValidCp(String.fromCharCode(97 + j) + (8 - i), String.fromCharCode(97 + kingCol) + (8 - kingRow))) {
-                    this.check = true
                     return true
                 }
             }
@@ -771,37 +568,37 @@ class Game {
         return false
     }
 
-    checkCheckmate() {
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                // Check for white pieces
-                if (this.isWhite) {
-                    if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toUpperCase()) {
-                        continue; // Skip to the next iteration if it's not a white piece
-                    }
-                    let from = String.fromCharCode(97 + j) + (8 - i);
-                    const validMoves = this.getValidMoves(from);
-                    if (validMoves.length > 0) {
-                        return false; // If a valid move exists, it's not checkmate
-                    }
-                }
-                // Check for black pieces
-                else {
-                    if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toLowerCase()) {
-                        continue; // Skip to the next iteration if it's not a black piece
-                    }
-                    let from = String.fromCharCode(97 + j) + (8 - i);
-                    const validMoves = this.getValidMoves(from);
-                    if (validMoves.length > 0) {
-                        return false; // If a valid move exists, it's not checkmate
-                    }
-                }
-            }
-        }
-        alert("Checkmate! YOU LOSE");
-        this.endGame()
-        return true; // Return true if no valid moves found, meaning it's checkmate
-    }
+    // checkCheckmate() {
+    //     for (let i = 0; i < 8; i++) {
+    //         for (let j = 0; j < 8; j++) {
+    //             // Check for white pieces
+    //             if (this.isWhite) {
+    //                 if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toUpperCase()) {
+    //                     continue; // Skip to the next iteration if it's not a white piece
+    //                 }
+    //                 let from = String.fromCharCode(97 + j) + (8 - i);
+    //                 const validMoves = this.getValidMoves(from);
+    //                 if (validMoves.length > 0) {
+    //                     return false; // If a valid move exists, it's not checkmate
+    //                 }
+    //             }
+    //             // Check for black pieces
+    //             else {
+    //                 if (this.board[i][j] === '.' || this.board[i][j] !== this.board[i][j].toLowerCase()) {
+    //                     continue; // Skip to the next iteration if it's not a black piece
+    //                 }
+    //                 let from = String.fromCharCode(97 + j) + (8 - i);
+    //                 const validMoves = this.getValidMoves(from);
+    //                 if (validMoves.length > 0) {
+    //                     return false; // If a valid move exists, it's not checkmate
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     alert("Checkmate! YOU LOSE");
+    //     this.endGame()
+    //     return true; // Return true if no valid moves found, meaning it's checkmate
+    // }
 
     getmoves() {
         return this.moves;
@@ -837,25 +634,6 @@ class Game {
                 this.socket.disconnect()
             })
         }
-    }
-
-    endGame() {
-        let pgns = ""
-        for (let i = 0; i < this.moves.length; i++) {
-            pgns += `${i + 1}. ${this.moves[i]} `
-        }
-        // uploadGame({
-        //     pgn: pgns,
-        //     creation: new Date(),
-        //     moves: this.moves.length,
-        //     winner: { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" },
-        //     game_id: this.code,
-        //     movelist: this.movelist,
-        //     players: [{ id: this.id, name: this.name, color: this.isWhite ? "white" : "black" }, { id: this.opponentId, name: this.opponentName, color: this.isWhite ? "black" : "white" }]
-        // })
-        console.log(this.moves)
-        if (this.live)
-            this.socket.emit('endGame', this.code)
     }
 
 }
