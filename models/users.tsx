@@ -1,21 +1,25 @@
 import mongoose from 'mongoose'
 
 const UserSchema = new mongoose.Schema({
-    name:{
+    name: {
         type: String,
         required: true,
         unique: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
         unique: true,
     },
-    password: {
-        type: String,
-        required: true,
+    password: { 
+        type: String
     },
-    creation:{
+    provider: { 
+        type: String, 
+        required: true, 
+        enum: ["credentials", "google"] 
+    },
+    creation: {
         type: Date,
         required: true,
         default: Date.now,
@@ -32,7 +36,7 @@ const UserSchema = new mongoose.Schema({
             }
         ]
     },
-    pendingfriends:{
+    pendingfriends: {
         type: [
             {
                 id: {
@@ -44,7 +48,7 @@ const UserSchema = new mongoose.Schema({
             }
         ]
     },
-    games:{
+    games: {
         type: [
             {
                 winner: {

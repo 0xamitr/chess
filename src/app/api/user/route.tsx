@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       name: body.name,
       email: body.email,
       password: bcrypt.hashSync(body.password, 10),
+      provider: "credentials"
     }
     const user = await User.create(data);
     return NextResponse.json({ success: true, data: user }, { status: 201 });

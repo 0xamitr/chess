@@ -52,6 +52,7 @@ export default  function SignIn(){
             />
             <input type='submit' />
             <div><p>Dont have an account? </p><a href='signup'>SignUp Now!</a></div>
+            <button onClick={() => signIn('google')}>Sign In with Google</button>
         </CustomForm >
     )
 }

@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from "next-auth/providers/google";
 import dbConnect from '../../../../../lib/dbConnect';
 import bcrypt from 'bcrypt';
 import User from '../../../../../models/users';
@@ -32,8 +33,27 @@ const handler = NextAuth({
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
   ],
   callbacks: {
+    async signIn({user, account}) {
+      if (account.provider === "google") {
+        await dbConnect();
+        const existingUser = await User.findOne({ email: user.email });
+        console.log(existingUser);
+        if (!existingUser) {
+          await User.create({
+            name: user.name,
+            email: user.email,
+            provider: "google",
+          });
+        }
+      }
+      return true;
+    },
     async session({ session, token, user }) {
       // Add custom fields to the session
       session.user.id = token.id; // Add user ID from token
