@@ -35,7 +35,7 @@ export default function Profile() {
                     <div className={styles.games}>
                         <h2>Games</h2>
                         {games.map((game: any) => (
-                            <Link href={game._id} className={styles.game} key={game._id}>
+                            <Link href={`/analysis/${game._id}`} className={styles.game} key={game._id}>
                                 <p>{x++}.</p>
                                 {game.winner == null ? (
                                     <p>Draw</p>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import ChessBoard from "../../../components/ChessBoard/chessboard"
-import Game from "../../../functions/game/game";
+import ChessBoard from "../../../../components/ChessBoard/chessboard"
+import Game from "../../../../functions/game/game";
 import styles from "./page.module.css";
 import { useSession } from "next-auth/react";
 
@@ -13,7 +13,7 @@ export default function GameAnalysis() {
 
     useEffect(() => {
         console.log(window.location.pathname.split('/')[1])
-        fetch(`/api/game?id=${window.location.pathname.split('/')[1]}`, {
+        fetch(`/api/game?id=${window.location.pathname.split('/')[2]}`, {
             method: 'GET',
         })
             .then(response => response.json())

@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import dbConnect from '../../../../../lib/dbConnect';
 import bcrypt from 'bcrypt';
 import User from '../../../../../models/users';
+import { cookies } from "next/headers";
 
 const handler = NextAuth({
   providers: [
@@ -43,13 +44,11 @@ const handler = NextAuth({
       if (account.provider === "google") {
         await dbConnect();
         const existingUser = await User.findOne({ email: user.email });
+        console.log("email", user.email)
         console.log(existingUser);
         if (!existingUser) {
-          await User.create({
-            name: user.name,
-            email: user.email,
-            provider: "google",
-          });
+          cookies().set("pending_registration", user.email, { maxAge: 300, httpOnly: true });
+          return '/newuser'
         }
       }
       return true;

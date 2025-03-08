@@ -11,6 +11,16 @@ export default  function SignIn(){
     if(session.data){
         router.push('/')
     }
+
+    const handleG = async() =>{
+        try{
+            console.log("what")
+            const response = await signIn('google')
+        }
+        catch(error){
+            console.log(error)
+        }
+    }
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
         const form = e.target as HTMLFormElement;
@@ -34,25 +44,27 @@ export default  function SignIn(){
         }
     }
     return(
-        <CustomForm onSubmit={handleSubmit}>
-            <h2>SIGN IN</h2>
-            <CustomInput 
-                inputheading="Email"
-                type="email"
-                name="email"
-                required="required"
-            />
-            <CustomInput 
-                inputheading="Password"
-                type="password"
-                name="password"
-                required="required"
-                minLength={8} 
-                maxLength={20}
-            />
-            <input type='submit' />
-            <div><p>Dont have an account? </p><a href='signup'>SignUp Now!</a></div>
-            <button onClick={() => signIn('google')}>Sign In with Google</button>
-        </CustomForm >
+        <>
+            <CustomForm onSubmit={handleSubmit}>
+                <h2>SIGN IN</h2>
+                <CustomInput 
+                    inputheading="Email"
+                    type="email"
+                    name="email"
+                    required="required"
+                />
+                <CustomInput 
+                    inputheading="Password"
+                    type="password"
+                    name="password"
+                    required="required"
+                    minLength={8} 
+                    maxLength={20}
+                />
+                <input type='submit' />
+                <div><p>Dont have an account? </p><a href='signup'>SignUp Now!</a></div>
+            </CustomForm >
+            <button onClick={handleG}>Sign In with Google</button>
+        </>
     )
 }
