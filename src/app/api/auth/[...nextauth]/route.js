@@ -44,17 +44,17 @@ const handler = NextAuth({
       if (account.provider === "google") {
         await dbConnect();
         const existingUser = await User.findOne({ email: user.email });
-        console.log("email", user.email)
-        console.log(existingUser);
         if (!existingUser) {
-          cookies().set("pending_registration", user.email, { maxAge: 300, httpOnly: true });
-          return '/newuser'
+          user.pending = true;
+          return true
         }
       }
       return true;
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       // Add custom fields to the session
+      if(token.pending)
+          session.user.pending = true; 
       session.user.id = token.id; // Add user ID from token
       session.user.games = token.games; // Add custom role from token (if any)
       
@@ -65,6 +65,8 @@ const handler = NextAuth({
         // Add the user's ID and any other custom fields to the token
         token.id = user._id; // MongoDB document ID
         token.games = user.games; // Add custom role or other fields
+        if(user.pending)
+            token.pending = true;
       }
 
       return token;

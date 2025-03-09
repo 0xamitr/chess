@@ -14,7 +14,7 @@ export default function Friends() {
     const socketRef = useRef<Socket | null>(null);    const [friends, setFriends] = useState<any | null>([]);
     
     useEffect(() => {
-        if (session.data && session.data.user) {
+        if (session.data && session.data.user && !session.data.user.pending) {
             fetch(`/api/getFriends?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {

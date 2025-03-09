@@ -11,19 +11,20 @@ export default function Profile() {
     const [games, setGames] = useState([])
     const session = useSession()
     useEffect(() => {
-        if (session.data && session.data.user) {
+        if (session.data && session.data.user && !session.data.user.pending) {
             fetch(`/api/getGames?id=${session.data.user.id}`, {
                 method: 'GET',
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                    setGames(data)
-                })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                setGames(data)
+            })
         }
     }, [session])
     let x = 1
     return (
+        
         <div className={styles.profile}>
             <h1>Profile</h1>
             <div>

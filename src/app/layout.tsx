@@ -5,6 +5,7 @@ import Header from "../../components/Header/header";
 import Footer from "../../components/Footer/footer";
 import SessionWrapper from "./sessionwrapper";
 import { PopupProvider } from '../../components/context/PopupContext';
+import UserAction from "../../components/userAction/userAction";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionWrapper>
           <PopupProvider>
+            <UserAction />
             <Header />
             <main>{children}</main>
             {/* <Footer /> */}

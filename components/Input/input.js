@@ -1,9 +1,9 @@
 import styles from './input.module.css'
-export default function CustomInput({inputheading, ...props}){
+export default function CustomInput({className="", inputheading, ...props}){
     return(
         <label className={styles.label}>
             <p>{inputheading}</p>
-            <input className={styles.input} {...props}/>
+            <input {...props} className={`${styles.input} ${className}`}/>
         </label>
     )
 }
