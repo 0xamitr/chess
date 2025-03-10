@@ -40,7 +40,7 @@ const handler = NextAuth({
     })
   ],
   callbacks: {
-    async signIn({user, account}) {
+    async signIn({ user, account }) {
       if (account.provider === "google") {
         await dbConnect();
         const existingUser = await User.findOne({ email: user.email });
@@ -48,27 +48,37 @@ const handler = NextAuth({
           user.pending = true;
           return true
         }
+        console.log("khachak")
+        console.log(user.name)
+        console.log(existingUser.name)
+        user._id = existingUser._id;
+        user.name = existingUser.name;
       }
       return true;
     },
     async session({ session, token }) {
       // Add custom fields to the session
-      if(token.pending)
-          session.user.pending = true; 
+      if (token.pending)
+        session.user.pending = true;
       session.user.id = token.id; // Add user ID from token
       session.user.games = token.games; // Add custom role from token (if any)
-      
+      session.user.name = token.name;
+
       return session; // Return the modified session object
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         // Add the user's ID and any other custom fields to the token
         token.id = user._id; // MongoDB document ID
         token.games = user.games; // Add custom role or other fields
-        if(user.pending)
-            token.pending = true;
+        if (user.pending)
+          token.pending = true;
       }
-
+      if (trigger === "update" && session?.pending !== undefined) {
+        token.pending = session.pending;
+        token.name = session.name;
+        token.id = session.id;
+      }
       return token;
     },
   },

@@ -23,8 +23,13 @@
 
 .unavailable {
     border: 2px solid red;
+
 }
 
 .unavailable:focus {
     outline: 2px solid red;
+}
+
+.error{
+    color: red
 }

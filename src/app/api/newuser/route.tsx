@@ -1,17 +1,14 @@
 import { NextRequest } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import User from "../../../../models/users";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
 export async function POST(req: NextRequest) {
     await dbConnect();
-    const cook = cookies().get('pending_registration')
-    console.log(cook)
-    if (!cook)
-        return NextResponse.json({ success: false, data: "No pending registration" }, { status: 400 });
+
     try {
         const body = await req.json();
+        if (!body.pending)
+            return NextResponse.json({ success: false, data: "No pending registration" }, { status: 400 });
         const data = {
             name: body.username,
             email: body.email,

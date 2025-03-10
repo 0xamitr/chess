@@ -12,6 +12,7 @@ export default function Profile() {
     const session = useSession()
     useEffect(() => {
         if (session.data && session.data.user && !session.data.user.pending) {
+            console.log(session.data.user.id)
             fetch(`/api/getGames?id=${session.data.user.id}`, {
                 method: 'GET',
             })
