@@ -10,8 +10,8 @@ export default function AddFriend() {
             fetch(`/api/getFriendRequests?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log("hellno")
                     setFriendRequests(data.data);
-                    console.log(data.data)
                 })
                 .catch(error => console.log(error))
         }
@@ -23,16 +23,15 @@ export default function AddFriend() {
 
     const acceptFriendRequest = async(friendId: String) => {
         if (session && session.data && session.data.user && !session.data.user.pending) {
-            console.log("friendid", friendId)
             const response = await fetch(`/api/acceptFriendRequest?id=${session.data.user.id}&friendId=${friendId}`)
-            if(response.ok)
-                getFriendRequests()
+            if(response.ok){
+                console.log(friendRequests)
+            }
         }
     }
 
     const addFriend = (id: String): void => {
         acceptFriendRequest(id)
-        console.log("Friend added");
     }
     return (
         <>

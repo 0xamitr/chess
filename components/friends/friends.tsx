@@ -6,19 +6,20 @@ import { getSocket } from "../../functions/socket";
 import { useRouter } from "next/navigation";
 import { usePopup } from "../context/PopupContext";
 import { Socket } from "socket.io-client";
+import { Fira_Sans } from "next/font/google";
 
 export default function Friends() {
     const router = useRouter()
     const session = useSession()
     const { showPopup } = usePopup()
-    const socketRef = useRef<Socket | null>(null);    const [friends, setFriends] = useState<any | null>([]);
+    const socketRef = useRef<Socket | null>(null);    
+    const [friends, setFriends] = useState<any | null>([]);
     
     useEffect(() => {
         if (session.data && session.data.user && !session.data.user.pending) {
             fetch(`/api/getFriends?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data.data)
                     socketRef.current = getSocket(session.data.user, showPopup, router)
                     setFriends(data.data);
                 })
@@ -26,8 +27,15 @@ export default function Friends() {
         }
     }, [session])
 
+    const unFriend = (id: String)=>{
+        if(session.data && session.data.user && !session.data.user.pending){
+            fetch(`/api/removefriend?id1=${id}&id2=${session.data.user.id}`, {
+                method: 'PUT',
+            })
+        }
+    }
     return (
-        <div>
+        <div>&&
             <h1>Friends</h1>
             {
                 friends && friends.map((friend: any, i: number) => (
@@ -37,6 +45,9 @@ export default function Friends() {
                             if(socketRef.current)
                                 socketRef.current.emit('challenge', friend.id)
                         }}>Challenge</button>
+                        <button onClick={()=>{unFriend(friend.id)}}>
+                            unfriend
+                        </button>
                     </div>
                 ))
             }

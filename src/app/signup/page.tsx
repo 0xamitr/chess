@@ -1,10 +1,18 @@
 "use client"
 import CustomForm from '../../../components/Form/form'
 import CustomInput from '../../../components/Input/input'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 export default  function SignUp(){
+    const session = useSession()
     const router = useRouter()
+    console.log(session)
+    // if(session.data){
+    //     router.push('/')
+    // }
+
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
         e.stopPropagation()
@@ -32,30 +40,33 @@ export default  function SignUp(){
     return(
         <CustomForm onSubmit={handleSubmit}>
             <h2>SIGN UP</h2>
-            <CustomInput 
+            <Input type='text' placeholder='Username' name='username' minLength={4} maxLength={20} required/>
+            {/* <CustomInput 
                 inputheading="Username"
                 type="text"
                 name="username"
                 required="required"
                 minLength={4} 
                 maxLength={20}
-            />
-            <CustomInput 
+            /> */}
+            <Input type='email' placeholder='Email' name='email' required/>
+            {/* <CustomInput 
                 inputheading="Email"
                 type="email"
                 name="email"
                 required="required"
-            />
-            <CustomInput 
+            /> */}
+            <Input type='password' placeholder='Password' name='password' minLength={8} maxLength={20} required/>
+            {/* <CustomInput 
                 inputheading="Password"
                 type="password"
                 name="password"
                 required="required"
                 minLength={8} 
                 maxLength={20}
-            />
-            <input type='submit' />
-            <button onClick={() => signOut()}>LOG out</button>
+            /> */}
+            <Button type='submit'>Sign Up</Button>
+            <Button onClick={()=> signOut()}>Sign Out</Button>
         </CustomForm >
     )
 }
