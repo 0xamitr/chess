@@ -23,30 +23,25 @@ export default function Header() {
             <h1 className="text-2xl"><Link href="/">CHESSY.Tech</Link></h1>
             <div>
                 {
-                    session.status != "loading" && !session.data &&
-                    <Link href="/signin">Sign in</Link>
-                }
-                {
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <Avatar>
-                                {session.status === "loading" ? (
-                                    <AvatarFallback>U</AvatarFallback> // Show loading indicator
-                                ) : session.data?.user?.image ? (
-                                    <AvatarImage src={session.data.user.image} />
-                                ) : (
-                                    <AvatarFallback>U</AvatarFallback>
-                                )}
-                            </Avatar>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem asChild><Link href={'/profile'}>Profile</Link></DropdownMenuItem>
-                            <DropdownMenuItem asChild><button onClick={() => { signOut() }}>Logout</button></DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-
-
+                    session.status != "loading" && !session.data ?
+                        <Link href="/signin">Sign in</Link> :
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Avatar>
+                                    {session.status === "loading" ? (
+                                        <AvatarFallback>U</AvatarFallback> // Show loading indicator
+                                    ) : session.data?.user?.image ? (
+                                        <AvatarImage src={session.data.user.image} />
+                                    ) : (
+                                        <AvatarFallback>U</AvatarFallback>
+                                    )}
+                                </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem asChild><Link href={'/profile'}>Profile</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><button onClick={() => { signOut() }}>Logout</button></DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                 }
             </div>
         </header>
