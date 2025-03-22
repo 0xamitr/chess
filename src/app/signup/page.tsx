@@ -39,7 +39,7 @@ export default  function SignUp(){
     }
     return(
         <CustomForm onSubmit={handleSubmit}>
-            <h2>SIGN UP</h2>
+            <h2 className='text-xl mb-5'>SIGN UP</h2>
             <Input type='text' placeholder='Username' name='username' minLength={4} maxLength={20} required/>
             {/* <CustomInput 
                 inputheading="Username"

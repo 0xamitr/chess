@@ -1,11 +1,11 @@
 "use client"
 import { MouseEventHandler } from 'react'
 import CustomForm from '../../../components/Form/form'
-import CustomInput from '../../../components/Input/input'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function SignIn() {
     const session = useSession()
@@ -49,7 +49,7 @@ export default function SignIn() {
     return (
         <>
             <CustomForm onSubmit={handleSubmit}>
-                <h2>SIGN IN</h2>
+                <h2 className='text-xl mb-5'>SIGN IN</h2>
                 <Input type='email' placeholder='Email' name='email' required />
                 {/* <CustomInput 
                     inputheading="Email"
@@ -68,13 +68,8 @@ export default function SignIn() {
                 /> */}
                 <Button type='submit'>Sign In</Button>
                 {/* <input type='submit' /> */}
-                <div>
-                    <p>Dont have an account? </p>
-                    <Button asChild>
-                        <a href='signup'>SignUp Now!</a>
-                    </Button>
-                </div>
                 <Button onClick={handleG}>Sign In with Google</Button>
+                <Link href='signup' className='hover:underline'>Dont have an account? </Link>
             </CustomForm >
         </>
     )

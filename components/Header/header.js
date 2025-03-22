@@ -17,8 +17,8 @@ export default function Header() {
     const session = useSession()
     console.log(session)
     return (
-        <header className={styles.header}>
-            <h1><Link href="/">CHESSY.Tech</Link></h1>
+        <header className="flex p-5 pl-[10%] pr-[10%] justify-between">
+            <h1 className="text-2xl"><Link href="/">CHESSY.Tech</Link></h1>
             <div>
                 {
                     session.status != "loading" && !session.data &&
@@ -30,7 +30,7 @@ export default function Header() {
                         <DropdownMenuTrigger>
                             <Avatar>
                                 {session.data && <AvatarImage src={session.data.user.image} />}
-                                <AvatarFallback>CN</AvatarFallback>
+                                <AvatarFallback>U</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
