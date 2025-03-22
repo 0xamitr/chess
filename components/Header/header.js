@@ -14,8 +14,10 @@ import {
 
 
 export default function Header() {
+    console.log("what")
     const session = useSession()
     console.log(session)
+    session && session.data && console.log(session.data.user.image)
     return (
         <header className="flex p-5 pl-[10%] pr-[10%] justify-between">
             <h1 className="text-2xl"><Link href="/">CHESSY.Tech</Link></h1>
@@ -25,12 +27,16 @@ export default function Header() {
                     <Link href="/signin">Sign in</Link>
                 }
                 {
-                    (session.status == "loading" || (session.status != "loading" && session.data)) &&
                     <DropdownMenu>
                         <DropdownMenuTrigger>
                             <Avatar>
-                                {session.data && <AvatarImage src={session.data.user.image} />}
-                                <AvatarFallback>U</AvatarFallback>
+                                {session.status === "loading" ? (
+                                    <AvatarFallback>U</AvatarFallback> // Show loading indicator
+                                ) : session.data?.user?.image ? (
+                                    <AvatarImage src={session.data.user.image} />
+                                ) : (
+                                    <AvatarFallback>U</AvatarFallback>
+                                )}
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
