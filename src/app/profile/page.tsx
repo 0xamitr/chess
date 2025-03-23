@@ -36,18 +36,21 @@ export default function Profile() {
     let x = 1
     return (
 
-        <div className="max-w-3xl ml-auto mr-auto" >
-            <h1>Profile</h1>
-            <div>
-                <p>Username: {session.data && session.data.user && session.data.user.name}</p>
-                <p>Email: {session.data && session.data.user && session.data.user.email}</p>
+        <div className="max-w-3xl ml-auto mr-auto mt-[5%]" >
+            <div className="mb-[8%]">
+                <h1 className="mb-2 text-xl font-medium">Profile</h1>
+                <div>
+                    <p>Username: {session.data && session.data.user && session.data.user.name}</p>
+                    <p>Email: {session.data && session.data.user && session.data.user.email}</p>
+                </div>
+
             </div>
             {
-                session.data && session.data.user && games && (
-                    <div className={styles.games}>
-                        <h2>Games</h2>
+                session.data && session.data.user && games  && (
+                    <div className="mb-[5%]">
+                        <h2 className="mb-2 text-xl font-medium">Games</h2>
                         <Table>
-                            <TableCaption>Games</TableCaption>
+                            <TableCaption>{games.length} Games Played</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>S.No.</TableHead>
@@ -57,8 +60,8 @@ export default function Profile() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {games.map((game: any) => (
-                                    <TableRow>
+                                {games.map((game: any, index) => (
+                                    <TableRow key={index}>
                                         <Link className="contents" href={`/analysis/${game._id}`} key={game._id}>
                                             <TableCell>{x++}</TableCell>
                                             <TableCell>
@@ -86,9 +89,7 @@ export default function Profile() {
                         ))} */}
                     </div>
                 )}
-            <div>
-                <Link href="/newfriend">Add Friend</Link>
-            </div>
+            
             <AddFriend />
             <Friends />
         </div>
