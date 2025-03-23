@@ -9,9 +9,12 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         if (!body.pending)
             return NextResponse.json({ success: false, data: "No pending registration" }, { status: 400 });
+        console.log(body)
+        console.log(body.img)
         const data = {
             name: body.username,
             email: body.email,
+            img: body.img,
             provider: "google"
         }
         const user = await User.create(data);

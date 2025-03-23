@@ -23,9 +23,9 @@ export async function GET(req: NextRequest){
             return NextResponse.json({ success: false, data: "You are already friends" }, { status: 400 });
     }
     
-    await User.findByIdAndUpdate(id, {friends: [...user.friends, {id: friend._id, name: friend.name}], pendingfriends: user.pendingfriends.filter((pendingfriend: any) => pendingfriend.id !== friendId)});
+    await User.findByIdAndUpdate(id, {friends: [...user.friends, {id: friend._id, name: friend.name, img: friend.img}], pendingfriends: user.pendingfriends.filter((pendingfriend: any) => pendingfriend.id !== friendId)});
 
-    await User.findByIdAndUpdate(friendId, {friends: [...friend.friends, {id: user._id, name: user.name}], pendingfriends: friend.pendingfriends.filter((pendingfriend: any) => pendingfriend.id !== id)});
+    await User.findByIdAndUpdate(friendId, {friends: [...friend.friends, {id: user._id, name: user.name, img: user.img}], pendingfriends: friend.pendingfriends.filter((pendingfriend: any) => pendingfriend.id !== id)});
 
-    return NextResponse.json({success: true, data: "Friend Request Send"}, {status: 200})
+    return NextResponse.json({success: true, data: "Friend Request Accepted"}, {status: 200})
 }

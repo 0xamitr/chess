@@ -14,7 +14,6 @@ import {
 
 
 export default function Header() {
-    console.log("what")
     const session = useSession()
     console.log(session)
     session && session.data && console.log(session.data.user.image)
@@ -27,7 +26,7 @@ export default function Header() {
                         <Link href="/signin">Sign in</Link> :
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Avatar>
+                                <Avatar className="border-4">
                                     {session.status === "loading" ? (
                                         <AvatarFallback>U</AvatarFallback> // Show loading indicator
                                     ) : session.data?.user?.image ? (

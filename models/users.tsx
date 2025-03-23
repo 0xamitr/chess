@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
     password: { 
         type: String
     },
+    img:{
+        type: String,
+        default: '/user.png'
+    },
     provider: { 
         type: String, 
         required: true, 
@@ -33,6 +37,10 @@ const UserSchema = new mongoose.Schema({
                 name: {
                     type: String,
                 },
+                img: {
+                    type: String,
+                    default: '/user.png'
+                }
             }
         ]
     },

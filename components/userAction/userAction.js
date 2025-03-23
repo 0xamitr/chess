@@ -6,6 +6,7 @@ import CustomForm from "../Form/form"
 import CustomInput from "../Input/input"
 import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
+
 export default function UserAction() {
     const inputref = useRef(null)
     const session = useSession();
@@ -69,6 +70,7 @@ export default function UserAction() {
             body: JSON.stringify({
                 username: entries.username,
                 email: email,
+                img: session.data.user.image,
                 pending: session.data.user.pending
             }),
             credentials: 'include'
