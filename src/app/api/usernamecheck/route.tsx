@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
     const user = await User.findOne({name: body.username});
     if(user){
         console.log(user)
-        return NextResponse.json({ success: false }, { status: 409 });
+        return NextResponse.json({ success: true }, { status: 200 });
     }
     else    
-        return NextResponse.json({ success: true }, { status: 200 });
+        return NextResponse.json({ success: false }, { status: 409 });
 }

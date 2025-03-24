@@ -1,15 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import CustomForm from "../Form/form";
-import CustomInput from "../Input/input";
 import { useSession } from "next-auth/react";
-import { usePopup } from "../context/PopupContext";
+import { Button } from "@/components/ui/button";
+import CheckUserInput from "../checkUserInput/checkuserinput";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function SendFriendRequest() {
     const session = useSession()
-    const { showPopup } = usePopup();
     const [friend, setFriend] = useState<[string, string, string]>(["", "", ""]);
+
     const findFriend = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault()
         const form = e.target as HTMLFormElement;
@@ -25,7 +32,7 @@ export default function SendFriendRequest() {
             else
                 throw new Error("Session does not exist")
         }).catch((error) => {
-            showPopup("user does not exist", "message", "top-right")
+            console.log(error)
         })
     }
     const addFriend = async () => {
@@ -39,25 +46,26 @@ export default function SendFriendRequest() {
         const data = await response.json()
         if (response.ok)
             console.log(data)
-        else
-            showPopup(data.data, "message", "top-right")
     }
 
     return (
         <>
-            <CustomForm onSubmit={findFriend}>
-                <h2>Add Friend</h2>
-                <CustomInput
-                    inputheading="Username"
-                    type="text"
-                    name="username"
-                    required="required"
-                    minLength={4}
-                    maxLength={20}
-                />
-                <input type='submit' />
-                {friend[0] && <button type="button" onClick={() => addFriend()}>Add Friend</button>}
-            </CustomForm >
+            <Dialog>
+                <DialogTrigger className="text-sky-600">Add Friend</DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add Friend</DialogTitle>
+                        <DialogDescription>
+                            
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form className="flex flex-col gap-5" onSubmit={findFriend}>
+                                <CheckUserInput />
+                                <Button type='submit'>Submit</Button>
+                                {friend[0] && <button type="button" onClick={() => addFriend()}>Add Friend</button>}
+                            </form >
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

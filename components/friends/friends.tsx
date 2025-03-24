@@ -6,7 +6,7 @@ import { getSocket } from "../../functions/socket";
 import { useRouter } from "next/navigation";
 import { usePopup } from "../context/PopupContext";
 import { Socket } from "socket.io-client";
-import { Button } from "@/components/ui/button";
+import SendFriendRequest from "../sendFriendRequest/sendFriendRequest";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -49,17 +49,15 @@ export default function Friends() {
         }
     }
     return (
-        <div className="max-w-5/10">
+        <div className="mr-auto">
             <div className="flex items-center mb-5 gap-5">
                 <h1 className="text-xl font-medium">Friends</h1>
-                <div>
-                    <Link className="text-blue-500 hover:underline font-medium" href="/newfriend">Add Friend</Link>
-                </div>
+                <SendFriendRequest />
             </div>
             <div className="flex flex-col gap-3">
                 {
                     friends && friends.map((friend: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center">
+                        <div key={i} className="flex gap-[20%] items-center">
                             <div className="flex gap-5 items-center">
                                 <Image src={friend.img} alt="user" width={100} height={100} />
                                 <p className="font-medium">{friend.name}</p>
