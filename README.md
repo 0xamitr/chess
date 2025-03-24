@@ -3,8 +3,8 @@ To-Do
 In decreasing order of priority  
 
 [ ] UI for friend requests  
-[ ] Move from CSS modules to tailwind css  
-[ ] Integrate ShadCN  
+[X] Move from CSS modules to tailwind css  
+[X] Integrate ShadCN  
 [ ] Fully move to typescript  
 [ ] github/twitter auth if am feeling good  
 [ ] chess bot (learn machine learning)  
