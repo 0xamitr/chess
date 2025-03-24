@@ -1,7 +1,6 @@
 "use client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { signOut, useSession } from "next-auth/react"
-import styles from "./header.module.css"
 import Link from "next/link"
 import {
     DropdownMenu,

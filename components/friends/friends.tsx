@@ -8,7 +8,28 @@ import { usePopup } from "../context/PopupContext";
 import { Socket } from "socket.io-client";
 import SendFriendRequest from "../sendFriendRequest/sendFriendRequest";
 import Image from "next/image";
-import Link from "next/link";
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
 import {
     Tooltip,
     TooltipContent,
@@ -16,6 +37,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { Button } from "@/components/ui/button";
 export default function Friends() {
     const router = useRouter()
     const session = useSession()
@@ -63,33 +85,62 @@ export default function Friends() {
                                 <p className="font-medium">{friend.name}</p>
                             </div>
                             <div>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <button onClick={() => {
-                                                if (socketRef.current)
-                                                    socketRef.current.emit('challenge', friend.id)
-                                            }}>
-                                                <Image src={'/challenge.png'} alt="challenge" width={40} height={40} />
-                                            </button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Challenge</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <button onClick={() => { unFriend(friend.id) }}>
-                                                <Image src={'/unfriend.png'} alt="challenge" width={40} height={40} />
-                                            </button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Remove Friend</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
+                                <Dialog>
+                                    <DialogTrigger>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Image src={'/challenge.png'} alt="challenge" width={40} height={40} />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <>
+                                                        <p>Challenge</p>
+                                                    </>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider></DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Challenge</DialogTitle>
+                                            <DialogDescription>
+                                                Challenging {friends.name} 
+                                                <Image src={friends.img} alt=""></Image>
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <Button onClick={() => {
+                                            if (socketRef.current)
+                                                socketRef.current.emit('challenge', friend.id)
+                                        }}>
+                                            Challenge
+                                        </Button>
+                                    </DialogContent>
+                                </Dialog>
+                                <AlertDialog>
+                                    <AlertDialogTrigger>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Image src={'/unfriend.png'} alt="challenge" width={40} height={40} />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Remove Friend</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Do you want to remove this friend?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                ...
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => { unFriend(friend.id) }}>Continue</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
                     ))
