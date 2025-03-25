@@ -1,24 +1,27 @@
 "use client"
 import { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input"
-import { useSession } from "next-auth/react";
+type CheckUserInputProps = {
+    userExists: string;
+    setUserExists: React.Dispatch<React.SetStateAction<string>>;
+    errormessage: string;
+    setErrormessage: React.Dispatch<React.SetStateAction<string>>;
+    className?: string;
+};
 
-export default function CheckUserInput() {
+export default function CheckUserInput({ userExists, setUserExists, errormessage, setErrormessage, className }: CheckUserInputProps) {
     const inputref = useRef<HTMLInputElement>(null); // Explicitly define the type
-    const session = useSession();
-    const [available, setAvailable] = useState(false)
-    const [errormessage, setErrormessage] = useState("")
+    // const [userExists, setUserExists] = useState(false)
+    // const [errormessage, setErrormessage] = useState("")
     const [username, setUsername] = useState("")
 
     useEffect(() => {
         if (username.length < 3) {
-            setAvailable(false)
-            setErrormessage("Username must be atleast 3 characters long")
+            setUserExists("invalid")
             return
         }
-        if (!(/^[a-zA-Z0-9]+$/.test(username))) {
-            setAvailable(false)
-            setErrormessage("Only alphanumeric characters are allowed")
+        else if (!(/^[a-zA-Z0-9]+$/.test(username))) {
+            setUserExists("invalid")
             return
         }
         const delay = setTimeout(async () => {
@@ -31,12 +34,10 @@ export default function CheckUserInput() {
                 credentials: 'include'
             })
             if (response.ok) {
-                setAvailable(true)
-                setErrormessage("")
+                setUserExists("true")
             }
             else {
-                setAvailable(false)
-                setErrormessage("Username is already taken")
+                setUserExists("false")
             }
         }, 200)
         return () => clearTimeout(delay)
@@ -49,7 +50,6 @@ export default function CheckUserInput() {
 
     return (
         <Input
-            className={available ? "focus-visible:ring-green-300" : "focus-visible:ring-red-400"}
             ref={inputref}
             placeholder="Username"
             type="text"
@@ -58,6 +58,7 @@ export default function CheckUserInput() {
             minLength={4}
             maxLength={20}
             onChange={handleKeypress}
+            className={className} // Apply the passed className
         />
     )
 }

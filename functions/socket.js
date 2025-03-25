@@ -1,18 +1,16 @@
 import { io } from 'socket.io-client';
 import { getGame, removeGame, setGame } from './gamemanager';
 import Game from './game/game';
-
+import { toast } from 'sonner';
 let socket;
 
-export const getSocket = (user, showPopup, router) => {
+export const getSocket = (user, router) => {
     if (!socket) {
         const userId = user.id;
         const name = user.name;
         const s = io(process.env.NEXT_PUBLIC_SERVER, { query: { id: userId, username: name } });
         socket = s;
         s.on('gameover', ()=>{
-            console.log("shut the fuck up man timererof your bullshit")
-            alert("hafdhskfjhsadjkfhsdjkfhsjkdfhsdjkfhasdkhfdsjkfhsdjakhfsjdkahf")
             removeGame();
             router.push('/')
             router.refresh()
@@ -28,7 +26,7 @@ export const getSocket = (user, showPopup, router) => {
                 }
             })
             if(getGame()){
-                return showPopup("You are already in a game", "error", "top-right");
+                // return showPopup("You are already in a game", "error", "top-right");
             }
             if (id == userId) {
                 const g = new Game(socket, roomCode, true, name, userId, oppname, oppid, true, null)
@@ -47,7 +45,6 @@ export const getSocket = (user, showPopup, router) => {
         s.on('game-update', (gameState) => {
             let refreshsheduled = false;
             let game = getGame();
-            console.log(game)
             if (!game) {
                 refreshsheduled = true;
                 if(userId == gameState.player1Id)
@@ -71,7 +68,6 @@ export const getSocket = (user, showPopup, router) => {
             }
             game.board = gameState.board;
             if (game.isWhite){  
-                console.log("white", gameState.whiteleftrookMove, gameState.whiterightrookMove, gameState.whitekingMove)
                 game.kingMove = gameState.whitekingMove,
                 game.leftrookMove = gameState.whiteleftrookMove,
                 game.rightrookMove = gameState.whiterightrookMove,
@@ -109,15 +105,27 @@ export const getSocket = (user, showPopup, router) => {
         });
 
         s.on(('roomnotfound'), () => {
-            showPopup("Room not found. Please try again", "error", "top-right");
+            // showPopup("Room not found. Please try again", "error", "top-right");
         });
 
         s.on('roomfull', () => {
-            showPopup("Room is already full", "error", "top-right");
+            // showPopup("Room is already full", "error", "top-right");
             ;
         });
         s.on('challenge-received', (fromId, name) => {
-            showPopup("Challenge received from " + name, "challenge", "top-right", fromId);
+            toast(`Challenge Received from ${name}`, {
+                description: "....",
+                action: {
+                  label: "Accept",
+                  onClick: () => {
+                    socket.emit('challenge-accepted', fromId)
+                  },
+                  action: {
+                    label: "Decline",
+                  }
+                },
+              })
+            // showPopup("Challenge received from " + name, "challenge", "top-right", fromId);
         })
     }
     return socket;

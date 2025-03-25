@@ -23,8 +23,9 @@ export async function POST(req: Request) {
   await dbConnect();
   try {
     const body = await req.json();
+    const username = body.username.toLowerCase()
     const data = {
-      name: body.name,
+      name: username,
       email: body.email,
       password: bcrypt.hashSync(body.password, 10),
       provider: "credentials"

@@ -15,33 +15,20 @@ import {
 
 export default function SendFriendRequest() {
     const session = useSession()
-    const [friend, setFriend] = useState<[string, string, string]>(["", "", ""]);
+    const [userExists, setUserExists] = useState("")
+    const [errormessage, setErrormessage] = useState("")
 
-    const findFriend = (e: React.FormEvent<HTMLFormElement>): void => {
+    const addFriend = async (e: any) => {
         e.preventDefault()
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const username = formData.get('username');
-        fetch(`/api/user?username=${username}`, {
-            method: 'GET',
-        }).then((response) => {
-            return response.json()
-        }).then((data) => {
-            if (session && session.data && session.data.user)
-                setFriend([data.data[0]._id, session.data.user.name, session.data.user.id] as [string, string, string])
-            else
-                throw new Error("Session does not exist")
-        }).catch((error) => {
-            console.log(error)
-        })
-    }
-    const addFriend = async () => {
+        const username = e.target.username.value
+        if(username == "" || userExists != 'true')
+            return
         const response = await fetch('/api/sendFriendRequest', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(friend)
+            body: JSON.stringify(username)
         })
         const data = await response.json()
         if (response.ok)
@@ -56,14 +43,18 @@ export default function SendFriendRequest() {
                     <DialogHeader>
                         <DialogTitle>Add Friend</DialogTitle>
                         <DialogDescription>
-                            
+
                         </DialogDescription>
                     </DialogHeader>
-                    <form className="flex flex-col gap-5" onSubmit={findFriend}>
-                                <CheckUserInput />
-                                <Button type='submit'>Submit</Button>
-                                {friend[0] && <button type="button" onClick={() => addFriend()}>Add Friend</button>}
-                            </form >
+                    <form className="flex flex-col gap-5" onSubmit={addFriend}>
+                        <CheckUserInput
+                            className={userExists === "true" ? "focus-visible:ring-green-300" : "focus-visible:ring-red-300"}
+                            setUserExists={setUserExists} />
+                        <p className="pl-2 text-gray-600 text-sm">
+                            {userExists == 'true' ? "" : userExists == 'invalid' ? "Invalid username" : "User does not exist"}
+                        </p>
+                        <Button type='submit'>Submit</Button>
+                    </form >
                 </DialogContent>
             </Dialog>
         </>

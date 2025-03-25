@@ -11,8 +11,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, data: "No pending registration" }, { status: 400 });
         console.log(body)
         console.log(body.img)
+        const username = body.username.toLowerCase()
         const data = {
-            name: body.username,
+            name: username,
             email: body.email,
             img: body.img,
             provider: "google"

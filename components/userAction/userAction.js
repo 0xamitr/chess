@@ -5,16 +5,21 @@ import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
 import CheckUserInput from "../checkUserInput/checkuserinput"
 import { Button } from "@/components/ui/button"
-export default function UserAction() {
+import { use, useState } from "react"
 
+export default function UserAction() {
     const session = useSession();
     const router = useRouter()
-    
+    const [userExists, setUserExists] = useState("")
+    const [errormessage, setErrormessage] = useState("")
+
     const handleSubmit = async (e) => {
-        if(e.target.username.value.length < 3){
+        if (e.target.username.value.length < 3) {
             return
         }
         e.preventDefault()
+        if(userExists != 'false')
+            return
         const formd = new FormData(e.target)
         const entries = Object.fromEntries(formd.entries())
         const email = session.data.user.email
@@ -30,12 +35,12 @@ export default function UserAction() {
         })
         if (response.ok) {
             const resolve = await response.json()
-            await session.update({ 
-                pending: false, 
+            await session.update({
+                pending: false,
                 name: entries.username,
                 id: resolve.data._id,
-                user: { ...session.data.user, pending: false } 
-            });            
+                user: { ...session.data.user, pending: false }
+            });
             router.push('/')
         }
     }
@@ -54,7 +59,12 @@ export default function UserAction() {
                     <CustomForm onSubmit={handleSubmit}>
                         <h2>You need to choose a username before you proceed</h2>
                         {session.data && <p>Email: {session.data.user.email}</p>}
-                        <CheckUserInput />
+                        <CheckUserInput
+                            className={userExists == 'true' || userExists == 'invalid' ? "focus-visible:ring-red-300" : "focus-visible:ring-green-300"}
+                            userExists={userExists} setUserExists={setUserExists}/>
+                        <p className= "pl-2 text-gray-600 text-sm">
+                            {userExists == 'true' ? "Username already exists" : userExists == 'invalid' ? "Invalid username" : "Username Available"}
+                        </p>
                         <Button type="submit">Submit</Button>
                         <Button onClick={() => signOut()}>LOG out</Button>
                     </CustomForm>

@@ -1,23 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import { setGame } from "../../functions/gamemanager";
 import styles from "./page.module.css";
 import ChessBoard from "../../components/ChessBoard/chessboard";
 import createRoom from "../../functions/createroom";
 import joinRoom from "../../functions/joinroom";
 import { useSession } from "next-auth/react";
-import { usePopup } from '../../components/context/PopupContext';
 import { getSocket } from "../../functions/socket";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  const { showPopup } = usePopup();
   const session = useSession()
   const [code, setCode] = useState<Number>();
 
   const handleJoinRoom = (e: any) => {
-    console.log("Joining room...");
     if (session.data && session.data.user)
       joinRoom(e, session.data.user.name, (session.data.user as { id: string }).id);
     else
@@ -25,7 +21,6 @@ export default function Home() {
   };
 
   const handleCreateRoom = (e: any) => {
-    console.log("Creating room...");
     try {
       let roomCode
       if (session.data && session.data.user)
@@ -40,7 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     if (session && session.data && session.data.user) {
-      const s = getSocket(session.data.user, showPopup, router)
+      const s = getSocket(session.data.user, router)
     }
   }, [session])
 

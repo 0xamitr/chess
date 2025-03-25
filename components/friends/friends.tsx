@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef } from "react"
 import { getSocket } from "../../functions/socket";
 import { useRouter } from "next/navigation";
-import { usePopup } from "../context/PopupContext";
 import { Socket } from "socket.io-client";
 import SendFriendRequest from "../sendFriendRequest/sendFriendRequest";
 import Image from "next/image";
@@ -38,10 +37,10 @@ import {
 } from "@/components/ui/tooltip"
 
 import { Button } from "@/components/ui/button";
+
 export default function Friends() {
     const router = useRouter()
     const session = useSession()
-    const { showPopup } = usePopup()
     const socketRef = useRef<Socket | null>(null);
     const [friends, setFriends] = useState<any | null>([]);
 
@@ -50,7 +49,8 @@ export default function Friends() {
             fetch(`/api/getFriends?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {
-                    socketRef.current = getSocket(session.data.user, showPopup, router)
+                    socketRef.current = getSocket(session.data.user, router)
+                    console.log(getSocket(session.data.user, router))
                     setFriends(data.data);
                     console.log(data.data)
                 })
@@ -108,8 +108,9 @@ export default function Friends() {
                                             </DialogDescription>
                                         </DialogHeader>
                                         <Button onClick={() => {
-                                            if (socketRef.current)
+                                            if (socketRef.current){
                                                 socketRef.current.emit('challenge', friend.id)
+                                            }
                                         }}>
                                             Challenge
                                         </Button>

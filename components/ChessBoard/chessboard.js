@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from "./chessboard.module.css";
 import getChessPiece from "../../functions/getChessPiece";
 import { getGame } from '../../functions/gamemanager';
-
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 export default function ChessBoard({ color1, color2, offGame }) {
     let game
     if (!offGame)
@@ -123,11 +124,8 @@ export default function ChessBoard({ color1, color2, offGame }) {
             toRow = parseInt(fromto.to[1]) - 1;
             toCol = 'h'.charCodeAt(0) - fromto.to.charCodeAt(0);
         }
-        console.log(toRow, toCol)
-        console.log("what the hello going on")
         const promotion = boardRef.current[toRow][toCol].current;
         promotion.style.display = 'none'
-        console.log(move)
         game.socket.emit('move', move, game.code);
     }
 
@@ -142,10 +140,7 @@ export default function ChessBoard({ color1, color2, offGame }) {
             toRow = parseInt(to[1]) - 1;
             toCol = 'h'.charCodeAt(0) - to.charCodeAt(0);
         }
-        console.log(toRow, toCol)
-        console.log(boardRef)
         const promotion = boardRef.current[toRow][toCol].current;
-        console.log(promotion)
         promotion.style.display = 'flex'
         setFromto({ from: from, to: to })
     }
@@ -247,7 +242,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
             if (!game)
                 return
 
-            console.log("game", game)
             const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
             // Adjust valid moves for the black perspective
             setValidMoves(
@@ -404,12 +398,12 @@ export default function ChessBoard({ color1, color2, offGame }) {
                     <div>{ImproveTime(mytime)}</div>
                 }
             </>}
-            <button onClick={handleGoback}>
-                GO BACK
-            </button>
-            <button onClick={handleGofront}>
-                GO FRONT
-            </button>
+            <Button onClick={handleGoback} variant="outline" size="icon">
+                <ChevronLeft />
+            </Button>
+            <Button onClick={handleGofront} variant="outline" size="icon">
+                <ChevronRight />
+            </Button>
         </div>
     );
 }
