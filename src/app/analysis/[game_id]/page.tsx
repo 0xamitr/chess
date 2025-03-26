@@ -12,18 +12,14 @@ export default function GameAnalysis() {
     const session = useSession()
 
     useEffect(() => {
-        console.log(window.location.pathname.split('/')[1])
         fetch(`/api/game?id=${window.location.pathname.split('/')[2]}`, {
             method: 'GET',
         })
             .then(response => response.json())
             .then(data => {
-                console.log("data", data)
-                console.log(session)
                 let iswhite
                 if(session.data && session.data.user){
                     if(data.players[0].id == session.data.user.id){
-                        console.log("hello1")
                         if(data.players[0].color == `white`)
                             iswhite = true
                             
@@ -31,14 +27,12 @@ export default function GameAnalysis() {
                             iswhite = false
                     }
                     else{
-                        console.log("hello2")
                         if(data.players[1].color == `white`)
                             iswhite = true
                         else
                             iswhite = false
                     }
                     setIsWhite(iswhite)
-                    console.log(data)
                     const g = new Game(null, null, iswhite, "", "", "", "", false, data)
                     setOffgame(g)
                 }

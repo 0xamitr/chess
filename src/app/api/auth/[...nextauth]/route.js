@@ -48,9 +48,6 @@ const handler = NextAuth({
           user.pending = true;
           return true
         }
-        console.log("khachak")
-        console.log(user.name)
-        console.log(existingUser.name)
         user._id = existingUser._id;
         user.name = existingUser.name;
       }

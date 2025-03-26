@@ -2,14 +2,11 @@
 import { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input"
 type CheckUserInputProps = {
-    userExists: string;
     setUserExists: React.Dispatch<React.SetStateAction<string>>;
-    errormessage: string;
-    setErrormessage: React.Dispatch<React.SetStateAction<string>>;
     className?: string;
 };
 
-export default function CheckUserInput({ userExists, setUserExists, errormessage, setErrormessage, className }: CheckUserInputProps) {
+export default function CheckUserInput({setUserExists, className }: CheckUserInputProps) {
     const inputref = useRef<HTMLInputElement>(null); // Explicitly define the type
     // const [userExists, setUserExists] = useState(false)
     // const [errormessage, setErrormessage] = useState("")

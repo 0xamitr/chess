@@ -381,9 +381,7 @@ export default function ChessBoard({ color1, color2, offGame }) {
                                                     <p onClick={handlePromotion}>♜</p>
                                                     <p onClick={handlePromotion}>♞</p>
                                                 </>
-
                                         }
-
                                     </div>
                                 }
                             </div>

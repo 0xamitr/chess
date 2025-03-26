@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import CheckUserInput from "../checkUserInput/checkuserinput";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -23,16 +24,37 @@ export default function SendFriendRequest() {
         const username = e.target.username.value
         if(username == "" || userExists != 'true')
             return
-        const response = await fetch('/api/sendFriendRequest', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(username)
-        })
-        const data = await response.json()
-        if (response.ok)
-            console.log(data)
+        try{
+            const response1 = await fetch(`/api/user?username=${username}`)
+            const data1 = await response1.json()
+            if (session && session.data && session.data.user){
+                let id = data1.data[0]._id
+                let name = session.data.user.name
+                let userid = session.data.user.id
+                try{
+                    const response = await fetch('/api/sendFriendRequest', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify([id, name, userid])
+                    })
+                    const data = await response.json()
+                    if (response.ok)
+                        console.log(data)
+                    else{
+                        console.log(data)
+                        toast(data.data)
+                    }
+                }
+                catch{
+                    toast("An error occured while sending the request. Try again later")
+                }
+            }
+        }
+        catch{
+            toast("An error occured")
+        }
     }
 
     return (

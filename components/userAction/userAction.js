@@ -5,21 +5,24 @@ import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
 import CheckUserInput from "../checkUserInput/checkuserinput"
 import { Button } from "@/components/ui/button"
-import { use, useState } from "react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function UserAction() {
     const session = useSession();
     const router = useRouter()
     const [userExists, setUserExists] = useState("")
-    const [errormessage, setErrormessage] = useState("")
 
     const handleSubmit = async (e) => {
-        if (e.target.username.value.length < 3) {
+        if (e.target.username.value.length < 4) {
+            toast('Username iSs too short')
             return
         }
         e.preventDefault()
-        if(userExists != 'false')
+        if(userExists != 'false'){
+            toast('Username is taken')
             return
+        }
         const formd = new FormData(e.target)
         const entries = Object.fromEntries(formd.entries())
         const email = session.data.user.email
@@ -44,7 +47,7 @@ export default function UserAction() {
             router.push('/')
         }
     }
-    console.log(session)
+
     if (session.status === 'unauthenticated') {
         return null
     }
@@ -52,6 +55,7 @@ export default function UserAction() {
         if (!session.data.user.pending)
             return null
     }
+
     return (
         <>
             {!(session.status === 'loading') &&
