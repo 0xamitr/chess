@@ -15,7 +15,7 @@ export default function UserAction() {
 
     const handleSubmit = async (e) => {
         if (e.target.username.value.length < 4) {
-            toast('Username iSs too short')
+            toast('Username is too short')
             return
         }
         e.preventDefault()
@@ -36,8 +36,8 @@ export default function UserAction() {
             }),
             credentials: 'include'
         })
+        const resolve = await response.json()
         if (response.ok) {
-            const resolve = await response.json()
             await session.update({
                 pending: false,
                 name: entries.username,
@@ -45,6 +45,9 @@ export default function UserAction() {
                 user: { ...session.data.user, pending: false }
             });
             router.push('/')
+        }
+        else{
+            toast(resolve.data)
         }
     }
 
