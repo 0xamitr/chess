@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
             img: body.img,
             provider: "google"
         }
-        try{
-        const user = await User.create(data);
-        return NextResponse.json({ success: true, data: user }, { status: 201 });
+        try {
+            const user = await User.create(data);
+            return NextResponse.json({ success: true, data: user }, { status: 201 });
         }
-        catch{
+        catch {
             return NextResponse.json({ success: false, data: "User already exists" }, { status: 400 });
         }
     } catch (error) {
