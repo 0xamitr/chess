@@ -273,73 +273,73 @@ export default function ChessBoard({ color1, color2, offGame }) {
             setBoardState(game.history[game.tempmove].map(row => row.slice().reverse()).reverse())
     }
 
-    // const handleOnMouseDown = (e, i, j) => {
-    //     setSelectedPiece(boardstate[i][j])
-    //     setSelectedPosition({ i: i, j: j });
+    const handleOnMouseDown = (e, i, j) => {
+        console.log(boardstate[i][j])
+        if (boardstate[i][j] == '.') {
+            console.log("j")
+            return
+        }
+        setSelectedPiece(boardstate[i][j])
+        setSelectedPosition({ i: i, j: j });
 
-    //     const moves = game.getValidMoves(String.fromCharCode(97 + 7 - j) + (8 - 7 + i));
-    //     // Adjust valid moves for the black perspective
-    //     setValidMoves(
-    //         moves.map(move => {
-    //             const [file, rank] = move.split('');
-    //             const moveI = 8 - parseInt(rank);
-    //             const moveJ = file.charCodeAt(0) - 97;
-    //             return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
-    //         })
-    //     );
+        const moves = game.getValidMoves(String.fromCharCode(97 + 7 - j) + (8 - 7 + i));
+        // Adjust valid moves for the black perspective
+        setValidMoves(
+            moves.map(move => {
+                const [file, rank] = move.split('');
+                const moveI = 8 - parseInt(rank);
+                const moveJ = file.charCodeAt(0) - 97;
+                return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
+            })
+        );
 
-    //     let chessboard = document.getElementById('chessboard')
-    //     let rect = chessboard.getBoundingClientRect()
+        let chesspiece = document.getElementById(`chesspiece-${i}-${j}`);
+        chesspiece.style.position = 'absolute';
+        chesspiece.style.zIndex = 1000;
+        chesspiece.style.pointerEvents = 'none';
+        chesspiece.style.transform = 'scale(1.8)'; // Increases size by 10%
+        chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
+        chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
 
-    //     let chesspiece = document.getElementById(`chesspiece-${i}-${j}`);
-    //     chesspiece.style.position = 'absolute';
-    //     chesspiece.style.zIndex = 1000;
-    //     chesspiece.style.pointerEvents = 'none';
+        const handleOnMouseMove = (e) => {
+            chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
+            chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
+        }
 
-    //     chesspiece.style.left = `${e.pageX - rect.left - chesspiece.offsetWidth / 2}px`;
-    //     chesspiece.style.top = `${e.pageY - rect.top - chesspiece.offsetHeight / 2}px`;
+        const handleOnMouseUp = (e) => {
+            chesspiece.style.transform = 'scale(1)';
+            document.removeEventListener('mousemove', handleOnMouseMove);
+            document.removeEventListener('mouseup', handleOnMouseUp);
 
-    //     const handleOnMouseMove = (e) => {
-    //         chesspiece.style.left = `${e.pageX - rect.left - chesspiece.offsetWidth / 2}px`;
-    //         chesspiece.style.top = `${e.pageY - rect.top - chesspiece.offsetHeight / 2}px`;
-    //     }
+            chesspiece.style.position = 'static';
+            let from
+            if (isWhite)
+                from = String.fromCharCode(97 + j) + (8 - i);
+            else
+                from = String.fromCharCode(97 + 7 - j) + (8 - 7 + i);
 
-    //     const handleOnMouseUp = (e) => {
-    //         document.removeEventListener('mousemove', handleOnMouseMove);
-    //         document.removeEventListener('mouseup', handleOnMouseUp);
+            let elem = document.elementFromPoint(e.clientX, e.clientY);
+            let to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
+            if (to === 'undefined-undefined') {
+                elem = elem.firstElementChild;
+            }
+            to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
+            if (isWhite) {
+                to = String.fromCharCode(97 + parseInt(to.split('-')[1])) + (8 - parseInt(to.split('-')[0]));
+            }
+            else {
+                // console.log(97 + 7 - parseInt(to.split('-')[1]), 8 - 7 + parseInt(to.split('-')[0]))
+                to = String.fromCharCode(97 + 7 - parseInt(to.split('-')[1])) + (8 - 7 + parseInt(to.split('-')[0]));
+            }
+            if (to == from)
+                return
+            console.log(from, to)
+            onMove(from, to)
+        }
 
-    //         chesspiece.style.position = 'static';
-    //         let from
-    //         if (isWhite)
-    //             from = String.fromCharCode(97 + j) + (8 - i);
-    //         else
-    //             from = String.fromCharCode(97 + 7 - j) + (8 - 7 + i);
-
-    //         let elem = document.elementFromPoint(e.clientX, e.clientY);
-    //         let to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
-    //         if(to === 'undefined-undefined'){
-    //             elem = elem.firstElementChild;
-    //         }
-    //         to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
-    //         if (isWhite){
-    //             to = String.fromCharCode(97 + parseInt(to.split('-')[1])) + (8 - parseInt(to.split('-')[0]));
-    //         }
-    //         else{
-    //             console.log(97 + 7 - parseInt(to.split('-')[1]), 8 - 7 + parseInt(to.split('-')[0]))
-    //             to = String.fromCharCode(97 + 7 - parseInt(to.split('-')[1])) + (8 - 7 + parseInt(to.split('-')[0]));
-    //         }
-    //         if(to == from)
-    //             return
-    //         console.log(from, to)
-    //         onMove(from, to)
-    //         setSelectedPiece(null);
-    //         setSelectedPosition(null);
-    //         setValidMoves([]);
-    //     }
-
-    //     document.addEventListener('mousemove', handleOnMouseMove)
-    //     document.addEventListener('mouseup', handleOnMouseUp)
-    // };
+        document.addEventListener('mousemove', handleOnMouseMove)
+        document.addEventListener('mouseup', handleOnMouseUp)
+    };
 
     return (
         <div>
@@ -359,7 +359,7 @@ export default function ChessBoard({ color1, color2, offGame }) {
                                 className={`${styles.box} ${selectedPosition && selectedPosition.i === i && selectedPosition.j === j ? styles.selected : ''} ${validMoves.some(move => move.i === i && move.j === j) ? styles.validMove : ''} ${isWhite !== false ? "" : styles.antirotated}`}
                                 key={j}
                                 onClick={(e) => handleSquareClick(e, i, j)}
-                            // onMouseDown={(e) => handleOnMouseDown(e, i, j)}
+                                onMouseDown={(e) => handleOnMouseDown(e, i, j)}
                             >
                                 <p
                                     id={`chesspiece-${i}-${j}`}

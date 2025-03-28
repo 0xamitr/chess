@@ -2,14 +2,13 @@
     border: solid 1px black;
     /* min-width: 320px; */
     aspect-ratio: 1;
-    position: relative;
+    user-select: none; 
 }
 
 .box {
-    position: relative;
-    max-width: 60px;
+    max-width: 70px;
     /* min-width: 40px; */
-    width: 6vw;
+    width: 6.5vw;
     aspect-ratio: 1;
     border: solid 1px black;
 }
@@ -17,13 +16,15 @@
 .row {
     display: flex;
 }
-
+/* 
 .selected {
     filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
+} */
+.selected{
+    background-color: lightgreen !important;
 }
-
 .validMove {
-    filter: invert(63%) sepia(14%) saturate(1019%) hue-rotate(47deg) brightness(85%) contrast(92%);
+    background-color: lightgreen !important;
 }
 
 .chesspiece {
@@ -31,7 +32,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: min(4.5vw, 45px);
+    font-size: min(4.2vw, 42px);
     padding: 0;
     margin: 0;
     display: flex;
