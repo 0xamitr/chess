@@ -4,6 +4,9 @@ import getChessPiece from "../../functions/getChessPiece";
 import { getGame } from '../../functions/gamemanager';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from "framer-motion";
+
+
 export default function ChessBoard({ color1, color2, offGame }) {
     let game
     if (!offGame)
@@ -200,7 +203,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
         // Adjust coordinates for black's perspective
         let adjustedI = isWhite ? i : 7 - i;
         let adjustedJ = isWhite ? j : 7 - j;
-
         if (selectedPiece) {
             if (!game) {
                 setSelectedPiece(boardstate[i][j])
@@ -219,14 +221,14 @@ export default function ChessBoard({ color1, color2, offGame }) {
                 setSelectedPiece(boardstate[i][j])
                 setSelectedPosition({ i: i, j: j });
                 const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
-                setValidMoves(
-                    moves.map(move => {
-                        const [file, rank] = move.split('');
-                        const moveI = 8 - parseInt(rank);
-                        const moveJ = file.charCodeAt(0) - 97;
-                        return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
-                    })
-                );
+                // setValidMoves(
+                //     moves.map(move => {
+                //         const [file, rank] = move.split('');
+                //         const moveI = 8 - parseInt(rank);
+                //         const moveJ = file.charCodeAt(0) - 97;
+                //         return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
+                //     })
+                // );
             } // Execute the move
             else {
                 setSelectedPiece(null);
@@ -241,17 +243,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
             setSelectedPosition({ i: i, j: j });
             if (!game)
                 return
-
-            const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
-            // Adjust valid moves for the black perspective
-            setValidMoves(
-                moves.map(move => {
-                    const [file, rank] = move.split('');
-                    const moveI = 8 - parseInt(rank);
-                    const moveJ = file.charCodeAt(0) - 97;
-                    return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
-                })
-            );
         }
     };
 
@@ -274,15 +265,22 @@ export default function ChessBoard({ color1, color2, offGame }) {
     }
 
     const handleOnMouseDown = (e, i, j) => {
-        console.log(boardstate[i][j])
         if (boardstate[i][j] == '.') {
-            console.log("j")
             return
         }
+        for(let index = 0; index < validMoves.length; index++){
+            if(validMoves[index].i == i && validMoves[index].j == j)
+                return
+        }
+        console.log("moves", validMoves)
         setSelectedPiece(boardstate[i][j])
         setSelectedPosition({ i: i, j: j });
 
-        const moves = game.getValidMoves(String.fromCharCode(97 + 7 - j) + (8 - 7 + i));
+        //adjust the coords based on the rotation of the board
+        let adjustedI = isWhite ? i : 7 - i;
+        let adjustedJ = isWhite ? j : 7 - j;
+
+        const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
         // Adjust valid moves for the black perspective
         setValidMoves(
             moves.map(move => {
@@ -301,6 +299,16 @@ export default function ChessBoard({ color1, color2, offGame }) {
         chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
         chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
 
+        // const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
+        // // Adjust valid moves for the black perspective
+        // setValidMoves(
+        //     moves.map(move => {
+        //         const [file, rank] = move.split('');
+        //         const moveI = 8 - parseInt(rank);
+        //         const moveJ = file.charCodeAt(0) - 97;
+        //         return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
+        //     })
+        // );
         const handleOnMouseMove = (e) => {
             chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
             chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
@@ -333,8 +341,12 @@ export default function ChessBoard({ color1, color2, offGame }) {
             }
             if (to == from)
                 return
-            console.log(from, to)
-            onMove(from, to)
+            if (onMove(from, to)) {
+                setValidMoves([])
+                setSelectedPosition(null);
+                setSelectedPiece(null);
+            }
+
         }
 
         document.addEventListener('mousemove', handleOnMouseMove)
@@ -358,12 +370,18 @@ export default function ChessBoard({ color1, color2, offGame }) {
                                 style={(i + j) % 2 === 0 ? { backgroundColor: color2 } : { backgroundColor: color1 }}
                                 className={`${styles.box} ${selectedPosition && selectedPosition.i === i && selectedPosition.j === j ? styles.selected : ''} ${validMoves.some(move => move.i === i && move.j === j) ? styles.validMove : ''} ${isWhite !== false ? "" : styles.antirotated}`}
                                 key={j}
-                                onClick={(e) => handleSquareClick(e, i, j)}
                                 onMouseDown={(e) => handleOnMouseDown(e, i, j)}
+                                onClick={(e) => handleSquareClick(e, i, j)}
                             >
-                                <p
+                                <motion.p
                                     id={`chesspiece-${i}-${j}`}
-                                    className={styles.chesspiece}>{getChessPiece(piece)}</p>
+                                    className={styles.chesspiece}
+                                    layout
+                                    animate={{ x: 0, y: 0 }}
+                                    transition={{ type: "spring", stiffness: 100 }}
+                                >
+                                    {getChessPiece(piece)}
+                                </motion.p>
                                 {i == 0 &&
                                     <div className={styles.promotion} ref={boardRef.current[i][j]}>
                                         {

@@ -52,16 +52,13 @@ export default function Friends() {
                     socketRef.current = getSocket(session.data.user, router)
                     console.log(getSocket(session.data.user, router))
                     setFriends(data.data);
-                    console.log(data.data)
                 })
                 .catch(error => console.log(error))
         }
     }, [session])
 
     const unFriend = async (id: String) => {
-        console.log(1)
         if (session.data && session.data.user && !session.data.user.pending) {
-            console.log(2)
             const response = await fetch(`/api/removefriend?id1=${id}&id2=${session.data.user.id}`, {
                 method: 'PUT',
             })
@@ -103,12 +100,14 @@ export default function Friends() {
                                         <DialogHeader>
                                             <DialogTitle>Challenge</DialogTitle>
                                             <DialogDescription>
-                                                Challenging {friends.name} 
-                                                <Image src={friends.img} alt=""></Image>
+                                                Challenging {friend.name} 
+                                                <Image src={friend.img} width={50} height={50} alt=""></Image>
                                             </DialogDescription>
                                         </DialogHeader>
                                         <Button onClick={() => {
+                                            console.log("socketRef", socketRef.current)
                                             if (socketRef.current){
+                                                console.log("what the fuck")
                                                 socketRef.current.emit('challenge', friend.id)
                                             }
                                         }}>

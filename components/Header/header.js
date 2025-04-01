@@ -14,8 +14,6 @@ import {
 
 export default function Header() {
     const session = useSession()
-    console.log(session)
-    session && session.data && console.log(session.data.user.image)
     return (
         <header className="flex p-5 pl-[10%] pr-[10%] justify-between">
             <h1 className="text-2xl"><Link href="/">CHESSY.Tech</Link></h1>

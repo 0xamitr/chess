@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 export default  function SignUp(){
     const session = useSession()
     const router = useRouter()
-    console.log(session)
     // if(session.data){
     //     router.push('/')
     // }

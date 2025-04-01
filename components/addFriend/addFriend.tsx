@@ -9,7 +9,6 @@ export default function AddFriend() {
             fetch(`/api/getFriendRequests?id=${session.data.user.id}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("hellno")
                     setFriendRequests(data.data);
                 })
                 .catch(error => console.log(error))
@@ -24,7 +23,6 @@ export default function AddFriend() {
         if (session && session.data && session.data.user && !session.data.user.pending) {
             const response = await fetch(`/api/acceptFriendRequest?id=${session.data.user.id}&friendId=${friendId}`)
             if (response.ok) {
-                console.log(friendRequests)
                 getFriendRequests()
             }
         }

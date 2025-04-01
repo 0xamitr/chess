@@ -22,7 +22,6 @@ export default function CheckUserInput({setUserExists, className }: CheckUserInp
             return
         }
         const delay = setTimeout(async () => {
-            console.log("fetching.......", username)
             const response = await fetch('/api/usernamecheck', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -41,7 +40,6 @@ export default function CheckUserInput({setUserExists, className }: CheckUserInp
     }, [username])
 
     const handleKeypress = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value)
         setUsername(e.currentTarget.value)
     }
 

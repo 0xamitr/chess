@@ -12,7 +12,6 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
-    console.log("body", body);
     const game = await GameS.create({
         players: body.players,
         creation: body.creation,
@@ -25,8 +24,6 @@ export async function POST(req: Request) {
     const winner = await User.findById(body.winner.id);
     const loser = await User.findById(body.players.filter((player: any) => player.id !== body.winner.id)[0].id);
 
-    console.log(game._id);
-    console.log("winner", winner);
     if (winner) {
         await User.findByIdAndUpdate(body.winner.id, { games: [...winner.games, { _id: game._id, winner: winner._id, creation: game.creation, moves: game.moves }] })
     }

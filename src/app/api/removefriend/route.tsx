@@ -3,7 +3,6 @@ import User from "../../../../models/users";
 import dbConnect from "../../../../lib/dbConnect";
 
 export async function PUT(req: NextRequest){
-    console.log("what")
     const id1 = req.nextUrl.searchParams.get('id1');
     const id2 = req.nextUrl.searchParams.get('id2');
     await dbConnect()

@@ -10,7 +10,6 @@ import Link from 'next/link'
 export default function SignIn() {
     const session = useSession()
     const router = useRouter()
-    console.log(session)
     if (session.data) {
         router.push('/')
     }

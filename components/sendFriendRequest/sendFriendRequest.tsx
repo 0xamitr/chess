@@ -43,7 +43,6 @@ export default function SendFriendRequest() {
                     if (response.ok)
                         console.log(data)
                     else{
-                        console.log(data)
                         toast(data.data)
                     }
                 }
