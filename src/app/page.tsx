@@ -55,7 +55,7 @@ export default function Home() {
         <HoverCardContent>
           <ul className="list-disc p-5">
             <li>Sign In (with google preferrably)</li>
-            <li>Send a friend request to your friend (Some test users that you can add : 'amit', 'saitm', 'amit2')</li>
+            <li>Send a friend request to your friend (Some test users that you can add : amit, saitm, amit2)</li>
             <li>And Challenge them to a game</li>
 
           </ul>
