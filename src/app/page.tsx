@@ -7,6 +7,13 @@ import joinRoom from "../../functions/joinroom";
 import { useSession } from "next-auth/react";
 import { getSocket } from "../../functions/socket";
 import { useRouter } from "next/navigation";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { Button } from "@/components/ui/button"
+
 
 export default function Home() {
   const router = useRouter();
@@ -41,8 +48,21 @@ export default function Home() {
 
   return (
     <div className={styles.home}>
-      <ChessBoard color1={'grey'} color2={'white'} offGame={null}/>
-      <div className={styles.side}>
+      <HoverCard>
+        <HoverCardTrigger>
+          <Button variant="link">How to Play?</Button>
+        </HoverCardTrigger>
+        <HoverCardContent>
+          <ul className="list-disc p-5">
+            <li>Sign In (with google preferrably)</li>
+            <li>Send a friend request to your friend (Some test users that you can add : 'amit', 'saitm', 'amit2')</li>
+            <li>And Challenge them to a game</li>
+
+          </ul>
+        </HoverCardContent>
+      </HoverCard>
+      <ChessBoard color1={'#367c2b'} color2={'#FAF9F6'} offGame={null} />
+      {/* <div className={styles.side}>
         {!code && <form className={styles.form1} onSubmit={handleJoinRoom}>
           <label>
             <input className={styles.inp} type="number" name="num" />
@@ -54,7 +74,7 @@ export default function Home() {
           <p>{code && `Enter this code: ${code}`}</p>
           <input className={styles.btn} type="submit" value="Create Room" />
         </form>
-      </div>
+      </div> */}
     </div>
   );
 }

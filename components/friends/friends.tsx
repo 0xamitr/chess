@@ -76,12 +76,12 @@ export default function Friends() {
             <div className="flex flex-col gap-3">
                 {
                     friends && friends.map((friend: any, i: number) => (
-                        <div key={i} className="flex gap-[20%] items-center">
+                        <div key={i} className="flex justify-between items-center">
                             <div className="flex gap-5 items-center">
                                 <Image src={friend.img} alt="user" width={100} height={100} />
                                 <p className="font-medium">{friend.name}</p>
                             </div>
-                            <div>
+                            <div className="flex gap-5 mr-[10%]">
                                 <Dialog>
                                     <DialogTrigger>
                                         <TooltipProvider>

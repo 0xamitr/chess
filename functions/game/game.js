@@ -281,6 +281,7 @@ class Game {
 
     // get all valid moves from a square
     getValidMoves(from) {
+        console.log(this.board)
         const validMoves = [];
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
@@ -305,6 +306,8 @@ class Game {
     // check if the move is a valid pawn move
     isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, target) {
         const direction = isWhite ? -1 : 1;
+
+        console.log(direction, isWhite, fromRow, fromCol, toRow, toCol, target, this.enPassant)
         if (fromCol === toCol) {
             if (target === '.') {
                 if (fromRow + direction === toRow) {
@@ -316,6 +319,14 @@ class Game {
         } else {
             if (this.enPassant != 0) {
                 if (Math.abs(fromCol - toCol) == 1 && fromRow + direction == toRow && toCol == this.enPassant) {
+                    if(isWhite){
+                        if(this.board[fromRow][fromCol+1] != 'p')
+                            return false;
+                    }
+                    else{
+                        if(this.board[fromRow][fromCol-1] != 'P')
+                            return false;
+                    }
                     return true
                 }
             }

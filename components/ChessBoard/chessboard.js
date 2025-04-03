@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ChessBoard({ color1, color2, offGame }) {
     let game
-    let elem = null;
+    let elem = useRef(null);
 
     if (!offGame)
         game = getGame()
@@ -222,14 +222,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
                 setSelectedPiece(boardstate[i][j])
                 setSelectedPosition({ i: i, j: j });
                 const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
-                // setValidMoves(
-                //     moves.map(move => {
-                //         const [file, rank] = move.split('');
-                //         const moveI = 8 - parseInt(rank);
-                //         const moveJ = file.charCodeAt(0) - 97;
-                //         return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
-                //     })
-                // );
             } // Execute the move
             else {
                 setSelectedPiece(null);
@@ -242,6 +234,7 @@ export default function ChessBoard({ color1, color2, offGame }) {
             // Set the selected piece and its position
             setSelectedPiece(boardstate[i][j])
             setSelectedPosition({ i: i, j: j });
+            console.log(boardstate[i][j])
             if (!game)
                 return
         }
@@ -267,6 +260,7 @@ export default function ChessBoard({ color1, color2, offGame }) {
 
     const handleOnMouseDown = (e, i, j) => {
         if (boardstate[i][j] == '.') {
+            setValidMoves([])
             return
         }
         for (let index = 0; index < validMoves.length; index++) {
@@ -300,16 +294,6 @@ export default function ChessBoard({ color1, color2, offGame }) {
         chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
         chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
 
-        // const moves = game.getValidMoves(String.fromCharCode(97 + adjustedJ) + (8 - adjustedI));
-        // // Adjust valid moves for the black perspective
-        // setValidMoves(
-        //     moves.map(move => {
-        //         const [file, rank] = move.split('');
-        //         const moveI = 8 - parseInt(rank);
-        //         const moveJ = file.charCodeAt(0) - 97;
-        //         return isWhite ? { i: moveI, j: moveJ } : { i: 7 - moveI, j: 7 - moveJ };
-        //     })
-        // );
         const handleOnMouseMove = (e) => {
             const chessboardcal = document.getElementById('chessboard').getBoundingClientRect();
             const left = chessboardcal.left;
@@ -323,19 +307,20 @@ export default function ChessBoard({ color1, color2, offGame }) {
             chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
 
             let currentelem = document.elementFromPoint(e.clientX, e.clientY);
+            if (currentelem) {
+                    currentelem = currentelem.closest("div");
+            }
+            
+            if (elem.current == null) {
+                elem.current = currentelem;
+                elem.current.style.border = 'solid 1px red';
+            }
 
-            if (!currentelem || currentelem.tagName !== "DIV") {
-                return; // Ignore if it's not a <div>
-            }
-            if (elem == null) {
-                elem = currentelem;
-                elem.style.border = 'solid 1px red';
-            }
             else {
-                if (currentelem != elem) {
-                    elem.style.border = 'solid 1px black';
-                    elem = currentelem;
-                    elem.style.border = 'solid 1px red';
+                if (currentelem != elem.current) {
+                    elem.current.style.border = 'solid 1px black';
+                    elem.current = currentelem;
+                    elem.current.style.border = 'solid 1px red';
                 }
             }
         }
@@ -353,18 +338,20 @@ export default function ChessBoard({ color1, color2, offGame }) {
                 from = String.fromCharCode(97 + 7 - j) + (8 - 7 + i);
 
             let elem = document.elementFromPoint(e.clientX, e.clientY);
+
+            let closestElem = elem.closest("div");
+            if (closestElem) {
+                closestElem.style.border = 'solid 1px black';
+            }
             let to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
             if (to === 'undefined-undefined') {
                 elem = elem.firstElementChild;
             }
             to = elem.id.split('-')[1] + '-' + elem.id.split('-')[2];
-            if (isWhite) {
+            if (isWhite) 
                 to = String.fromCharCode(97 + parseInt(to.split('-')[1])) + (8 - parseInt(to.split('-')[0]));
-            }
-            else {
-                // console.log(97 + 7 - parseInt(to.split('-')[1]), 8 - 7 + parseInt(to.split('-')[0]))
+            else 
                 to = String.fromCharCode(97 + 7 - parseInt(to.split('-')[1])) + (8 - 7 + parseInt(to.split('-')[0]));
-            }
             if (to == from)
                 return
             if (onMove(from, to)) {

@@ -36,7 +36,7 @@ export default function Profile() {
     let x = 1
     return (
 
-        <div className="max-w-3xl ml-auto mr-auto mt-[5%]" >
+        <div className="max-w-3xl ml-auto mr-auto mt-[5%] mb-[5%] pl-5 pr-5" >
             <div className="mb-[8%]">
                 <h1 className="mb-2 text-xl font-medium">Profile</h1>
                 <div>
