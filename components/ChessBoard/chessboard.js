@@ -4,11 +4,12 @@ import getChessPiece from "../../functions/getChessPiece";
 import { getGame } from '../../functions/gamemanager';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from "framer-motion";
 
 
 export default function ChessBoard({ color1, color2, offGame }) {
     let game
+    let elem = null;
+
     if (!offGame)
         game = getGame()
     else
@@ -268,8 +269,8 @@ export default function ChessBoard({ color1, color2, offGame }) {
         if (boardstate[i][j] == '.') {
             return
         }
-        for(let index = 0; index < validMoves.length; index++){
-            if(validMoves[index].i == i && validMoves[index].j == j)
+        for (let index = 0; index < validMoves.length; index++) {
+            if (validMoves[index].i == i && validMoves[index].j == j)
                 return
         }
         console.log("moves", validMoves)
@@ -310,8 +311,33 @@ export default function ChessBoard({ color1, color2, offGame }) {
         //     })
         // );
         const handleOnMouseMove = (e) => {
+            const chessboardcal = document.getElementById('chessboard').getBoundingClientRect();
+            const left = chessboardcal.left;
+            const top = chessboardcal.top;
+            const right = chessboardcal.right;
+            const bottom = chessboardcal.bottom;
+            if (e.pageX < left || e.pageX > right || e.pageY < top || e.pageY > bottom) {
+                return
+            }
             chesspiece.style.left = `${e.pageX - chesspiece.offsetWidth / 2}px`;
             chesspiece.style.top = `${e.pageY - chesspiece.offsetHeight / 2}px`;
+
+            let currentelem = document.elementFromPoint(e.clientX, e.clientY);
+
+            if (!currentelem || currentelem.tagName !== "DIV") {
+                return; // Ignore if it's not a <div>
+            }
+            if (elem == null) {
+                elem = currentelem;
+                elem.style.border = 'solid 1px red';
+            }
+            else {
+                if (currentelem != elem) {
+                    elem.style.border = 'solid 1px black';
+                    elem = currentelem;
+                    elem.style.border = 'solid 1px red';
+                }
+            }
         }
 
         const handleOnMouseUp = (e) => {
@@ -367,21 +393,19 @@ export default function ChessBoard({ color1, color2, offGame }) {
                     <div className={styles.row} key={i}>
                         {row.map((piece, j) => (
                             <div
+                                id="box"
                                 style={(i + j) % 2 === 0 ? { backgroundColor: color2 } : { backgroundColor: color1 }}
                                 className={`${styles.box} ${selectedPosition && selectedPosition.i === i && selectedPosition.j === j ? styles.selected : ''} ${validMoves.some(move => move.i === i && move.j === j) ? styles.validMove : ''} ${isWhite !== false ? "" : styles.antirotated}`}
                                 key={j}
                                 onMouseDown={(e) => handleOnMouseDown(e, i, j)}
                                 onClick={(e) => handleSquareClick(e, i, j)}
                             >
-                                <motion.p
+                                <p
                                     id={`chesspiece-${i}-${j}`}
                                     className={styles.chesspiece}
-                                    layout
-                                    animate={{ x: 0, y: 0 }}
-                                    transition={{ type: "spring", stiffness: 100 }}
-                                >
+                                    p                                >
                                     {getChessPiece(piece)}
-                                </motion.p>
+                                </p>
                                 {i == 0 &&
                                     <div className={styles.promotion} ref={boardRef.current[i][j]}>
                                         {
