@@ -5,6 +5,7 @@ import Header from "../../components/Header/header";
 import SessionWrapper from "./sessionwrapper";
 import UserAction from "../../components/userAction/userAction";
 import { Toaster } from "@/components/ui/sonner"
+import Footer from "../../components/footer/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,14 +21,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-[100vh]`}>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
         <SessionWrapper>
             <UserAction />
             <Header />
-            <main>{children}</main>
-            {/* <Footer /> */}
+            <main className="flex-grow">{children}</main>
             <Toaster />
         </SessionWrapper>
+        <Footer />
       </body>
     </html>
   );
